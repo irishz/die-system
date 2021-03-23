@@ -22,7 +22,7 @@ function Login() {
 
   useEffect(() => {
     axios
-      .get("http://192.168.2.197:4001/machine")
+      .get("http://192.168.2.13:4001/machine")
       .then((res) => setmachList(res.data))
       .catch((err) => console.log(err));
   }, [machList]);

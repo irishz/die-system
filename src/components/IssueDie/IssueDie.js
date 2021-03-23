@@ -59,7 +59,7 @@ function IssueDie() {
 
   useEffect(() => {
     axios
-      .get("http://192.168.2.197:4001/die-usage/")
+      .get("http://192.168.2.13:4001/die-usage/")
       .then((res) => setdieList(res.data))
       .catch((err) => console.log(err));
   }, [dieList]);
@@ -106,7 +106,7 @@ function IssueDie() {
     console.log(dieId);
     if (dieId) {
       axios
-        .put("http://192.168.2.197:4001/die-usage/update/" + dieId, {
+        .put("http://192.168.2.13:4001/die-usage/update/" + dieId, {
           status: "issued",
           issuedBy: userTokenData[0],
           issuedAt: moment(),
@@ -128,7 +128,7 @@ function IssueDie() {
 
     if (dieId) {
       axios
-        .put("http://192.168.2.197:4001/die-usage/update/" + dieId, {
+        .put("http://192.168.2.13:4001/die-usage/update/" + dieId, {
           status: "recieved",
           recievedBy: userTokenData[0],
           recievedAt: moment(),

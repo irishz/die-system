@@ -32,7 +32,7 @@ function DieRequest() {
 
   useLayoutEffect(() => {
     axios
-      .get("http://192.168.2.197:4001/die-usage/find/" + userTokenData[3])
+      .get("http://192.168.2.13:4001/die-usage/find/" + userTokenData[3])
       .then((res) => setdieList(res.data))
       .catch((err) => console.log(err));
   }, [dieList, userTokenData]);
@@ -102,7 +102,7 @@ function DieRequest() {
       }, 3000);
     } else {
       axios
-        .post("http://192.168.2.197:4001/die-usage/create", obj)
+        .post("http://192.168.2.13:4001/die-usage/create", obj)
         .then(() => {
           setalertSuccess(true);
           setTimeout(() => {

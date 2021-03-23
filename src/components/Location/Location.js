@@ -11,7 +11,7 @@ function Location(params) {
 
   useLayoutEffect(() => {
     axios
-      .get("http://192.168.2.197:4001/zone")
+      .get("http://192.168.2.13:4001/zone")
       .then((res) => setzoneList(res.data))
       .catch((err) => console.log(err));
     // return () => {
