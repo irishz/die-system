@@ -25,7 +25,7 @@ import { RiRefreshLine } from "react-icons/ri";
 function IssueDie() {
   const userTokenData = JSON.parse(localStorage.getItem("userToken"));
   const [dieList, setdieList] = useState([]);
-  const [activeDieStatus, setactiveDieStatus] = useState("waiting die");
+  const [activeDieStatus, setactiveDieStatus] = useState("กำลังรอ die");
   const itemRef = useRef(null);
   const locdieRef = useRef(null);
   const [scanItem, setscanItem] = useState("");
@@ -107,7 +107,7 @@ function IssueDie() {
     if (dieId) {
       axios
         .put("http://192.168.2.13:4001/die-usage/update/" + dieId, {
-          status: "issued",
+          status: "จ่ายแล้ว",
           issuedBy: userTokenData[0],
           issuedAt: moment(),
         })
@@ -129,7 +129,7 @@ function IssueDie() {
     if (dieId) {
       axios
         .put("http://192.168.2.13:4001/die-usage/update/" + dieId, {
-          status: "recieved",
+          status: "รับคืนแล้ว",
           recievedBy: userTokenData[0],
           recievedAt: moment(),
           checkDie: checkDie,
@@ -181,7 +181,7 @@ function IssueDie() {
       >
         <div>
           <ButtonGroup toggle>
-            {["all", "waiting die"].map((radio, idx) => (
+            {["ทั้งหมด", "กำลังรอ die"].map((radio, idx) => (
               <ToggleButton
                 key={idx}
                 type="radio"
@@ -213,12 +213,12 @@ function IssueDie() {
           </tr>
         </thead>
         <tbody>
-          {activeDieStatus === "all"
+          {activeDieStatus === "ทั้งหมด"
             ? dieList.map((die, idx) => (
                 <tr
                   key={idx}
                   style={
-                    die.status === "waiting die"
+                    die.status === "กำลังรอ die"
                       ? styles.waitDie
                       : styles.issueDie
                   }
@@ -239,7 +239,7 @@ function IssueDie() {
                   <tr
                     key={idx}
                     style={
-                      die.status === "waiting die"
+                      die.status === "กำลังรอ die"
                         ? styles.waitDie
                         : styles.issueDie
                     }

@@ -27,10 +27,10 @@ function Login() {
       .catch((err) => console.log(err));
   }, [machList]);
 
-  function onSignIn() {
+  async function onSignIn() {
     //   check password
-    validatePassword();
-    signIn();
+    await validatePassword();
+    await signIn();
   }
 
   function validatePassword() {
@@ -44,13 +44,16 @@ function Login() {
       }, 2000);
       setisLogin(true);
     } else {
-        let role;
-        if (position === 'ร้องขอ Die') {
-            role = 0;
-        } else {
-            role = 1;
-        }
-      localStorage.setItem("userToken", JSON.stringify([list[0].name, position, shift, machNo, role]));
+      let role;
+      if (position === "ร้องขอ Die") {
+        role = 0;
+      } else {
+        role = 1;
+      }
+      localStorage.setItem(
+        "userToken",
+        JSON.stringify([list[0].name, position, shift, machNo, role])
+      );
     }
   }
 
@@ -63,7 +66,7 @@ function Login() {
         <Card.Body>
           <Form>
             <Form.Group controlId="Username">
-              <Form.Label>Username</Form.Label>
+              <Form.Label>ชื่อผู้ใช้</Form.Label>
               <Form.Control
                 type="text"
                 as="select"
@@ -77,7 +80,7 @@ function Login() {
               </Form.Control>
             </Form.Group>
             <Form.Group controlId="Password">
-              <Form.Label>Password</Form.Label>
+              <Form.Label>รหัสผ่าน</Form.Label>
               <Form.Control
                 type="password"
                 required
@@ -86,7 +89,7 @@ function Login() {
             </Form.Group>
             <Form.Row>
               <Form.Group controlId="่Position" as={Col}>
-                <Form.Label>Position</Form.Label>
+                <Form.Label>ประเภทการเข้าใช้</Form.Label>
                 <Form.Control
                   type="text"
                   as="select"
@@ -97,7 +100,7 @@ function Login() {
                 </Form.Control>
               </Form.Group>
               <Form.Group controlId="Shift" as={Col}>
-                <Form.Label>Shift</Form.Label>
+                <Form.Label>ช่วงเวลาทำงาน</Form.Label>
                 <Form.Control
                   type="text"
                   as="select"
@@ -108,7 +111,7 @@ function Login() {
                 </Form.Control>
               </Form.Group>
               <Form.Group controlId="Machine" as={Col}>
-                <Form.Label>Machine</Form.Label>
+                <Form.Label>หมายเลขเครื่องจักร</Form.Label>
                 <Form.Control
                   type="text"
                   as="select"
@@ -120,7 +123,12 @@ function Login() {
                 </Form.Control>
               </Form.Group>
             </Form.Row>
-            <Button onClick={onSignIn}>Sign In</Button>
+            <Button
+              onClick={onSignIn}
+              disabled={username.length < 1 ? true : false}
+            >
+              เข้าสู่ระบบ
+            </Button>
           </Form>
         </Card.Body>
       </Card>

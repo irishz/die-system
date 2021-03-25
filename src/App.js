@@ -19,11 +19,13 @@ function App() {
   );
 
   useEffect(() => {
-    if (userToken) {
+    if (userToken !== null) {
       setIsSignIn(false);
+    } else {
+      setIsSignIn(true);
     }
     console.log("signIn:" + isSignIn);
-    console.log(userToken);
+    console.log("token:", userToken);
   }, [isSignIn, userToken]);
 
   function handleLogout() {
@@ -59,25 +61,25 @@ function App() {
             <Navbar bg="light" expand="lg">
               <Navbar.Brand href="/">Die-System</Navbar.Brand>
               <Nav className="mr-auto">
-                <Nav.Link href="/die-request">Request Die</Nav.Link>
+                <Nav.Link href="/die-request">เบิก Die</Nav.Link>
                 {userToken === null ? null : userToken[4] === 1 ? (
                   <>
-                    <Nav.Link href="/issue">Issue Die</Nav.Link>
-                    <Nav.Link href="/report">Report</Nav.Link>
+                    <Nav.Link href="/issue">จ่าย Die</Nav.Link>
+                    <Nav.Link href="/report">รายงาน</Nav.Link>
                   </>
                 ) : null}
               </Nav>
               {userToken === null ? (
                 <Nav>
-                  <Nav.Link href="/login">Login</Nav.Link>
+                  <Nav.Link href="/">เข้าสู่ระบบ</Nav.Link>
                 </Nav>
               ) : (
                 <Nav>
                   <Navbar.Brand>
-                    User: {userToken[0]}, Shift: {userToken[2]}
+                    ชื่อผู้ใช้: {userToken[0]}, Shift: {userToken[2]}
                   </Navbar.Brand>
-                  <Nav.Link onClick={handleLogout}>
-                    Logout
+                  <Nav.Link onClick={() => handleLogout()}>
+                    ออกจากระบบ
                     <BiLogOut />
                   </Nav.Link>
                 </Nav>
@@ -86,10 +88,10 @@ function App() {
             <div className="container">
               <Switch>
                 <Route exact path="/" component={DieRequest} />
-                <Route path="/login" component={Login} />
                 <Route path="/die-request" component={DieRequest} />
                 <Route path="/issue" component={IssueDie} />
                 <Route path="/report" component={ReportForm} />
+                <Route path="/login" component={Login} />
               </Switch>
             </div>
           </div>

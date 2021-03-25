@@ -27,14 +27,17 @@ function DieRequest() {
   const [btnEnable, setbtnEnable] = useState(true);
   const [alertSuccess, setalertSuccess] = useState(false);
   const [alertErr, setalertErr] = useState(false);
+  const [alertCreateErr, setalertCreateErr] = useState(false);
   const [alertExistData, setalertExistData] = useState(false);
   const [currDateTime, setcurrDateTime] = useState("");
 
   useLayoutEffect(() => {
-    axios
-      .get("http://192.168.2.13:4001/die-usage/find/" + userTokenData[3])
-      .then((res) => setdieList(res.data))
-      .catch((err) => console.log(err));
+    if (userTokenData) {
+      axios
+        .get("http://192.168.2.13:4001/die-usage/find/" + userTokenData[3])
+        .then((res) => setdieList(res.data))
+        .catch((err) => console.log(err));
+    }
   }, [dieList, userTokenData]);
 
   useEffect(() => {
@@ -45,7 +48,7 @@ function DieRequest() {
   }, [currDateTime]);
 
   if (localStorage.getItem("userToken") === null) {
-    <Redirect to="\login" />;
+    <Redirect to="\" />;
   }
 
   function handleScaned(e) {
@@ -55,8 +58,10 @@ function DieRequest() {
       axios
         .get("http://192.168.2.13/api/getitemlocdie/" + scanInput)
         .then((res) => {
-          //   console.log(res.data.item, res.data.Uf_Loc_die);
-          setitem(res.data.cust_item);
+          // console.log(res.data.cust_item, res.data.Uf_Loc_die);
+          if (res.data.cust_item) {
+            setitem(res.data.cust_item);
+          }
           setlocdie(res.data.Uf_Loc_die);
         })
         .catch((err) => {
@@ -81,7 +86,7 @@ function DieRequest() {
       item: item,
       locdie: locdie,
       mcno: userTokenData[3],
-      status: "waiting die",
+      status: "กำลังรอ die",
       requestBy: userTokenData[0],
       issuedBy: null,
       issuedAt: null,
@@ -93,7 +98,10 @@ function DieRequest() {
 
     if (
       dieList.filter(
-        (die) => (die.item === item) && (die.status === "waiting die") && (die.job === scanInput)
+        (die) =>
+          die.item === item &&
+          die.status === "กำลังรอ die" &&
+          die.job === scanInput
       ).length > 0
     ) {
       setalertExistData(true);
@@ -110,9 +118,9 @@ function DieRequest() {
           }, 3000);
         })
         .catch(() => {
-          setalertErr(true);
+          setalertCreateErr(true);
           setTimeout(() => {
-            setalertErr(false);
+            setalertCreateErr(false);
           }, 3000);
         });
     }
@@ -125,6 +133,14 @@ function DieRequest() {
     inputRef.focus();
   }
 
+  function rendenAlert(message, type, show) {
+    return (
+      <Alert variant={type} show={show}>
+        {message}
+      </Alert>
+    );
+  }
+
   return (
     <Container>
       <Row>
@@ -135,17 +151,17 @@ function DieRequest() {
               <tr>
                 <th>#</th>
                 <th>Job</th>
-                <th>Part</th>
+                <th>Part No.</th>
                 <th>Loc Die</th>
                 <th>M/C</th>
-                <th>Status</th>
+                <th>สถานะ</th>
               </tr>
             </thead>
             <tbody>
               {dieList
                 .filter(
                   (die) =>
-                    moment(die.createdAt).format("LL") === moment().format("LL")
+                    moment(die.createdAt).format("LL") === moment().format("LL") && die.status === "กำลังรอ die"
                 )
                 .map((die, idx) => (
                   <tr key={idx}>
@@ -175,7 +191,7 @@ function DieRequest() {
           </Row>
 
           <Row style={{ marginTop: 15 }}>
-            <Col>Scan Job</Col>
+            <Col>สแกนหมายเลข Job</Col>
             <Form.Control
               ref={(el) => (inputRef = el)}
               type="text"
@@ -212,12 +228,18 @@ function DieRequest() {
 
           <Row style={{ marginTop: 30 }}>
             <Col>
-              <Alert variant="danger" show={alertErr}>
-                กรุณาใส่เลข job!
-              </Alert>
-              <Alert variant="danger" show={alertExistData}>
-                คุณได้ร้องขอ die สำหรับ item นี้ไปแล้ว!
-              </Alert>
+              {rendenAlert(
+                "เกิดข้อผิดพลาด กรุณาลองใหม่",
+                "danger",
+                alertCreateErr
+              )}
+              {rendenAlert("กรุณาใส่เลข job!", "danger", alertErr)}
+              {rendenAlert(
+                "คุณได้ร้องขอ die สำหรับ item นี้ไปแล้ว!",
+                "danger",
+                alertExistData
+              )}
+              {rendenAlert("เบิกสำเร็จ!", "success", alertSuccess)}
             </Col>
           </Row>
         </Col>
