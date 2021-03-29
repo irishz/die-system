@@ -1,4 +1,5 @@
 import axios from "axios";
+import { BeatLoader } from "halogenium";
 import moment from "moment";
 import "moment/locale/th";
 import React from "react";
@@ -9,12 +10,15 @@ import {
   Alert,
   Button,
   Col,
-  Container,
   Form,
+  Modal,
   Row,
+  Spinner,
   Table,
 } from "react-bootstrap";
 import { Redirect } from "react-router-dom";
+import { AiFillEdit } from "react-icons/ai";
+import { FaCheck } from "react-icons/fa";
 
 function DieRequest() {
   const userTokenData = JSON.parse(localStorage.getItem("userToken"));
@@ -30,12 +34,21 @@ function DieRequest() {
   const [alertCreateErr, setalertCreateErr] = useState(false);
   const [alertExistData, setalertExistData] = useState(false);
   const [currDateTime, setcurrDateTime] = useState("");
+  const [isLoading, setisLoading] = useState(true);
+  const [isEdit, setisEdit] = useState(false);
+  const [isModalVisible, setisModalVisible] = useState(false);
+  const [delId, setdelId] = useState("");
+  const [deleteList, setdeleteList] = useState([]);
+  const [delProgress, setdelProgress] = useState(false);
 
   useLayoutEffect(() => {
     if (userTokenData) {
       axios
-        .get("http://192.168.2.13:4001/die-usage/find/" + userTokenData[3])
-        .then((res) => setdieList(res.data))
+        .get("http://192.168.2.13:4001/die-usage/")
+        .then((res) => {
+          setdieList(res.data);
+          setisLoading(false);
+        })
         .catch((err) => console.log(err));
     }
   }, [dieList, userTokenData]);
@@ -100,8 +113,7 @@ function DieRequest() {
       dieList.filter(
         (die) =>
           die.item === item &&
-          die.status === "กำลังรอ die" &&
-          die.job === scanInput
+          die.status === "กำลังรอ die"
       ).length > 0
     ) {
       setalertExistData(true);
@@ -141,11 +153,41 @@ function DieRequest() {
     );
   }
 
+  function handleDeleteClick(id) {
+    setisModalVisible(true);
+    setdelId(id);
+
+    let delList = dieList.filter((die) => die._id === id);
+    // console.log(delList[0]);
+    setdeleteList(delList);
+  }
+
+  function onDelete() {
+    setdelProgress(true);
+    // console.log(deleteList);
+    axios
+      .delete("http://192.168.2.13:4001/die-usage/delete/" + delId)
+      .then(() => {
+        setdelProgress(false);
+        setdeleteList([]);
+        setisModalVisible(false);
+      });
+  }
+
   return (
-    <Container>
+    <div>
       <Row>
         {/* Table Section */}
-        <Col lg={6}>
+        <Col>
+          {isEdit ? (
+            <Button variant="success" onClick={() => setisEdit(!isEdit)}>
+              สำเร็จ <FaCheck />
+            </Button>
+          ) : (
+            <Button variant="outline-dark" onClick={() => setisEdit(!isEdit)}>
+              แก้ไข <AiFillEdit />
+            </Button>
+          )}
           <Table striped bordered hover size="sm" variant="dark">
             <thead>
               <tr>
@@ -154,31 +196,50 @@ function DieRequest() {
                 <th>Part No.</th>
                 <th>Loc Die</th>
                 <th>M/C</th>
+                <th>วันที่ / เวลา</th>
                 <th>สถานะ</th>
               </tr>
             </thead>
             <tbody>
-              {dieList
-                .filter(
-                  (die) =>
-                    moment(die.createdAt).format("LL") === moment().format("LL") && die.status === "กำลังรอ die"
-                )
-                .map((die, idx) => (
-                  <tr key={idx}>
-                    <td>{idx + 1}</td>
-                    <td>{die.job}</td>
-                    <td>{die.item}</td>
-                    <td>{die.locdie}</td>
-                    <td>{die.mcno}</td>
-                    <td>{die.status}</td>
-                  </tr>
-                ))}
+              {isLoading ? (
+                <BeatLoader color="#26A65B" margin="4px" size="16px" />
+              ) : (
+                dieList
+                  .filter(
+                    (die) =>
+                      moment(die.createdAt).diff(moment()) < 1 &&
+                      die.status === "กำลังรอ die" &&
+                      die.mcno === userTokenData[3]
+                  )
+                  .map((die, idx) => (
+                    <tr key={idx}>
+                      <td>{idx + 1}</td>
+                      <td>{die.job}</td>
+                      <td>{die.item}</td>
+                      <td>{die.locdie}</td>
+                      <td>{die.mcno}</td>
+                      <td>{moment(die.createdAt).format("LLL")}</td>
+                      <td>{die.status}</td>
+                      {isEdit ? (
+                        <td>
+                          <Button
+                            variant="danger"
+                            size="sm"
+                            onClick={() => handleDeleteClick(die._id)}
+                          >
+                            X
+                          </Button>
+                        </td>
+                      ) : null}
+                    </tr>
+                  ))
+              )}
             </tbody>
           </Table>
         </Col>
 
         {/* Form Section */}
-        <Col lg={6}>
+        <Col lg={5} style={styles.scanSection}>
           <Row>
             <Col>
               <h5>เวลาและวันที่</h5>
@@ -191,7 +252,7 @@ function DieRequest() {
           </Row>
 
           <Row style={{ marginTop: 15 }}>
-            <Col>สแกนหมายเลข Job</Col>
+            <Col><h5>สแกนหมายเลข Job</h5></Col>
             <Form.Control
               ref={(el) => (inputRef = el)}
               type="text"
@@ -204,8 +265,8 @@ function DieRequest() {
           </Row>
 
           <Row style={{ marginTop: 15 }}>
-            <Col>Part No.</Col>
-            <Col>Location Die</Col>
+            <Col><h5>Part No.</h5></Col>
+            <Col><h5>Location Die</h5></Col>
           </Row>
           <Row>
             <Col>
@@ -235,7 +296,7 @@ function DieRequest() {
               )}
               {rendenAlert("กรุณาใส่เลข job!", "danger", alertErr)}
               {rendenAlert(
-                "คุณได้ร้องขอ die สำหรับ item นี้ไปแล้ว!",
+                "item นี้ มีการเบิกไปแล้ว!",
                 "danger",
                 alertExistData
               )}
@@ -244,8 +305,47 @@ function DieRequest() {
           </Row>
         </Col>
       </Row>
-    </Container>
+
+      <Modal show={isModalVisible}>
+        <Modal.Header closeButton>
+          <Modal.Title>ยืนยันการลบรายการ</Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>
+          <p>คุณต้องการลบ</p>
+          <strong>
+            Job : {deleteList.length > 0 ? deleteList[0].job : null}
+          </strong>
+          <br />
+          <strong>
+            Item : {deleteList.length > 0 ? deleteList[0].item : null}
+          </strong>
+          <br />
+          ใช่หรือไม่?
+        </Modal.Body>
+
+        <Modal.Footer>
+          <Button variant="danger" onClick={() => onDelete()}>
+            {delProgress ? (
+              <Spinner as="span" animation="border" role="status" size="sm" />
+            ) : (
+              "ยืนยัน"
+            )}
+          </Button>
+          <Button variant="secondary" onClick={() => setisModalVisible(false)}>
+            ยกเลิก
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </div>
   );
 }
 
 export default DieRequest;
+
+const styles = {
+  scanSection: {
+    paddingLeft: 50,
+    paddingRight: 50,
+  }
+}

@@ -1,6 +1,6 @@
 import { Switch } from "@material-ui/core";
 import axios from "axios";
-import React from "react";
+import React, { useLayoutEffect } from "react";
 import { useState } from "react";
 import { useEffect } from "react";
 import moment from "moment";
@@ -16,15 +16,19 @@ import {
   ToggleButton,
   Alert,
   Accordion,
+  Toast,
 } from "react-bootstrap";
 import Location from "../Location/Location";
 import { useRef } from "react";
 import { HiChevronDoubleDown, HiChevronDoubleUp } from "react-icons/hi";
 import { RiRefreshLine } from "react-icons/ri";
+import { IoInformationCircle } from "react-icons/io5";
+import "../IssueDie/IssueDie.css";
 
 function IssueDie() {
   const userTokenData = JSON.parse(localStorage.getItem("userToken"));
   const [dieList, setdieList] = useState([]);
+  const [prevDieList, setprevDieList] = useState([]);
   const [activeDieStatus, setactiveDieStatus] = useState("กำลังรอ die");
   const itemRef = useRef(null);
   const locdieRef = useRef(null);
@@ -35,6 +39,10 @@ function IssueDie() {
   const [job, setjob] = useState("");
   const [issueBtn, setissueBtn] = useState(true);
   const [activeAcdnKey, setactiveAcdnKey] = useState("0");
+  const [activeRow, setactiveRow] = useState(null);
+  const [toastNewItem, settoastNewItem] = useState(null);
+  const [istoastVisible, setistoastVisible] = useState(false);
+  const [toastTime, settoastTime] = useState(null);
 
   const [itemErr, setitemErr] = useState(false);
   const initCheckDie = {
@@ -57,21 +65,44 @@ function IssueDie() {
   };
   const [checkDie, setcheckDie] = useState(initCheckDie);
 
+  useLayoutEffect(() => {
+    axios
+      .get("http://192.168.2.13:4001/die-usage/")
+      .then((res) => setprevDieList(res.data))
+      .catch((err) => console.log(err));
+  }, []);
+
   useEffect(() => {
     axios
       .get("http://192.168.2.13:4001/die-usage/")
       .then((res) => setdieList(res.data))
       .catch((err) => console.log(err));
-  }, [dieList]);
+
+    if (dieList.length > prevDieList.length) {
+      settoastNewItem(dieList.length - prevDieList.length);
+      setistoastVisible(true);
+      settoastTime(moment());
+    }
+
+    if (istoastVisible) {
+      settoastTime(moment());
+    }
+  }, [dieList, istoastVisible, prevDieList.length]);
 
   function handleFilterDie(e) {
     // console.log(scanItem, scanLocDie);
+    let scanItemExpt;
+    if (scanItem.substring(scanItem.length - 2, scanItem.length) === "-E") {
+      scanItemExpt = scanItem;
+    } else {
+      scanItemExpt = scanItem + "-E";
+    }
     if (e.charCode === 13 || e.keyCode === 9) {
       e.preventDefault();
       axios
         .get(
           "http://192.168.2.13/api/checkitemlocdie/" +
-            scanItem +
+            scanItemExpt +
             "/" +
             scanLocDie
         )
@@ -98,6 +129,11 @@ function IssueDie() {
     dieId = list[0]._id;
 
     return dieId;
+  }
+
+  function onActiveDieChange(e) {
+    setactiveDieStatus(e);
+    setactiveRow(null);
   }
 
   function handleIssueDie() {
@@ -157,9 +193,10 @@ function IssueDie() {
     setcheckDie(tempDie);
   }
 
-  function handleClickJob(job) {
-    console.log(job);
+  function handleClickJob(job, idx) {
+    console.log(job, idx);
     setjob(job);
+    setactiveRow(idx);
   }
 
   function toggleAccordion() {
@@ -168,6 +205,12 @@ function IssueDie() {
     } else {
       setactiveAcdnKey("1");
     }
+  }
+
+  function handleToastClose() {
+    setprevDieList(dieList);
+    setistoastVisible(false);
+    settoastTime(null);
   }
 
   return (
@@ -189,7 +232,7 @@ function IssueDie() {
                 variant="info"
                 value={radio}
                 checked={radio === activeDieStatus}
-                onChange={(e) => setactiveDieStatus(e.currentTarget.value)}
+                onChange={(e) => onActiveDieChange(e.currentTarget.value)}
               >
                 {radio}
               </ToggleButton>
@@ -201,7 +244,7 @@ function IssueDie() {
         </Button>
       </Row>
 
-      <Table striped bordered hover size="sm">
+      <Table striped bordered size="sm" style={{ border: "1px solid #aaaaaa" }}>
         <thead>
           <tr>
             <th>#</th>
@@ -209,32 +252,15 @@ function IssueDie() {
             <th>Part</th>
             <th>Loc Die</th>
             <th>M/C</th>
+            <th>Duration</th>
             <th>Status</th>
           </tr>
         </thead>
         <tbody>
           {activeDieStatus === "ทั้งหมด"
-            ? dieList.map((die, idx) => (
-                <tr
-                  key={idx}
-                  style={
-                    die.status === "กำลังรอ die"
-                      ? styles.waitDie
-                      : styles.issueDie
-                  }
-                >
-                  <td>{idx + 1}</td>
-                  <td onDoubleClick={() => handleClickJob(die.job)}>
-                    {die.job}
-                  </td>
-                  <td>{die.item}</td>
-                  <td>{die.locdie}</td>
-                  <td>{die.mcno}</td>
-                  <td>{die.status}</td>
-                </tr>
-              ))
-            : dieList
-                .filter((die) => die.status === activeDieStatus)
+            ? dieList
+                .sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1))
+                .sort((a, b) => (a.mcno > b.mcno ? 1 : -1))
                 .map((die, idx) => (
                   <tr
                     key={idx}
@@ -243,14 +269,47 @@ function IssueDie() {
                         ? styles.waitDie
                         : styles.issueDie
                     }
+                    onClick={() => handleClickJob(die.job, idx)}
+                    className={idx === activeRow ? "activeRow" : "inactiveRow"}
                   >
                     <td>{idx + 1}</td>
-                    <td onDoubleClick={() => handleClickJob(die.job)}>
-                      {die.job}
-                    </td>
+                    <td>{die.job}</td>
                     <td>{die.item}</td>
                     <td>{die.locdie}</td>
                     <td>{die.mcno}</td>
+                    <td>
+                      <strong>
+                        {moment(die.createdAt).startOf().fromNow()}
+                      </strong>
+                    </td>
+                    <td>{die.status}</td>
+                  </tr>
+                ))
+            : dieList
+                .filter((die) => die.status === activeDieStatus)
+                .sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1))
+                .sort((a, b) => (a.mcno > b.mcno ? 1 : -1))
+                .map((die, idx) => (
+                  <tr
+                    key={idx}
+                    style={
+                      die.status === "กำลังรอ die"
+                        ? styles.waitDie
+                        : styles.issueDie
+                    }
+                    onClick={() => handleClickJob(die.job, idx)}
+                    className={idx === activeRow ? "activeRow" : "inactiveRow"}
+                  >
+                    <td>{idx + 1}</td>
+                    <td>{die.job}</td>
+                    <td>{die.item}</td>
+                    <td>{die.locdie}</td>
+                    <td>{die.mcno}</td>
+                    <td>
+                      <strong>
+                        {moment(die.createdAt).startOf().fromNow()}
+                      </strong>
+                    </td>
                     <td>{die.status}</td>
                   </tr>
                 ))}
@@ -336,9 +395,11 @@ function IssueDie() {
 
       <Row style={styles.section1}>
         <Col>
+          <label>ในระบบ</label>
           <Form.Control readOnly={true} value={Item}></Form.Control>
         </Col>
         <Col>
+          <label> </label>
           <Form.Control readOnly={true} value={LocDie}></Form.Control>
         </Col>
       </Row>
@@ -420,6 +481,23 @@ function IssueDie() {
           </Card>
         </Col>
       </Row>
+
+      <Toast
+        style={styles.notiToast}
+        show={istoastVisible}
+        delay={3000}
+        onClose={() => handleToastClose()}
+        animation={true}
+      >
+        <Toast.Header>
+          <IoInformationCircle size={16} color="red" />
+          <strong className="mr-auto">คำร้องใหม่!</strong>
+          <small>{moment().startOf().fromNow()}</small>
+        </Toast.Header>
+        <Toast.Body>
+          คุณมี <strong>{toastNewItem}</strong> คำร้องใหม่ที่ยังไม่ได้จ่าย
+        </Toast.Body>
+      </Toast>
     </Container>
   );
 }
@@ -433,9 +511,14 @@ const styles = {
     borderWidth: 1,
   },
   waitDie: {
-    backgroundColor: "#ffc107",
+    backgroundColor: "#FEDF7F",
   },
   issueDie: {
-    backgroundColor: "#20c997",
+    backgroundColor: "#54E0B7",
+  },
+  notiToast: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
   },
 };

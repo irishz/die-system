@@ -15,7 +15,7 @@ function Login() {
   const [position, setposition] = useState("ร้องขอ Die");
   const [shift, setshift] = useState("กะกลางวัน");
   const [machList, setmachList] = useState([]);
-  const [machNo, setmachNo] = useState("ASSY");
+  const [machNo, setmachNo] = useState("CON1");
   const [passwordErr, setpasswordErr] = useState(false);
 
   const { signIn } = useContext(AuthContext);
@@ -74,9 +74,11 @@ function Login() {
                 required
               >
                 <option></option>
-                {userData.map((user, idx) => (
-                  <option key={idx}>{user.name}</option>
-                ))}
+                {userData
+                  .sort((a, b) => (a.id > b.id ? 1 : -1))
+                  .map((user, idx) => (
+                    <option key={idx}>{user.name}</option>
+                  ))}
               </Form.Control>
             </Form.Group>
             <Form.Group controlId="Password">
@@ -117,9 +119,11 @@ function Login() {
                   as="select"
                   onChange={(e) => setmachNo(e.target.value)}
                 >
-                  {machList.map((mach, idx) => (
-                    <option key={idx}>{mach.McNo}</option>
-                  ))}
+                  {machList
+                    .sort((a, b) => (a.McNo > b.McNo ? 1 : -1))
+                    .map((mach, idx) => (
+                      <option key={idx}>{mach.McNo}</option>
+                    ))}
                 </Form.Control>
               </Form.Group>
             </Form.Row>

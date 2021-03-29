@@ -1,7 +1,7 @@
 import "./App.css";
 import { Route, BrowserRouter as Router, Switch } from "react-router-dom";
 import Login from "./components/Login";
-import DieRequest from "./components/DieRequest";
+import DieRequest from "./components/DieRequest/DieRequest";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Nav, Navbar } from "react-bootstrap";
 import { useState } from "react";
@@ -85,7 +85,7 @@ function App() {
                 </Nav>
               )}
             </Navbar>
-            <div className="container">
+            <div style={styles.body}>
               <Switch>
                 <Route exact path="/" component={DieRequest} />
                 <Route path="/die-request" component={DieRequest} />
@@ -102,3 +102,9 @@ function App() {
 }
 
 export default App;
+
+const styles = {
+  body: {
+    margin: 15,
+  },
+};
