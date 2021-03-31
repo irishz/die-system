@@ -9,6 +9,7 @@ const zoneRoute = require('./route/zone.routes');
 const machineRoute = require('./route/machine.routes');
 const dieUsageRoute = require('./route/dieUsage.routes');
 const locationRoute = require('./route/location.routes');
+const userRoute = require('./route/user.routes');
 
 mongoose.Promise = global.Promise;
 mongoose.connect('mongodb+srv://icezjetsada:Irishz01@cluster0.kxplg.mongodb.net/die?retryWrites=true&w=majority', {
@@ -32,6 +33,7 @@ app.use('/zone', zoneRoute);
 app.use('/machine', machineRoute);
 app.use('/die-usage', dieUsageRoute);
 app.use('/location', locationRoute);
+app.use('/user', userRoute);
 
 
 const port = process.env.PORT || 4001;
