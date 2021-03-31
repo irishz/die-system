@@ -1,5 +1,5 @@
 import axios from "axios";
-import React from "react";
+import React, { useLayoutEffect } from "react";
 import { useEffect } from "react";
 import { useContext } from "react";
 import { useState } from "react";
@@ -15,10 +15,18 @@ function Login() {
   const [position, setposition] = useState("ร้องขอ Die");
   const [shift, setshift] = useState("กะกลางวัน");
   const [machList, setmachList] = useState([]);
+  const [userList, setuserList] = useState([]);
   const [machNo, setmachNo] = useState("CON1");
   const [passwordErr, setpasswordErr] = useState(false);
 
   const { signIn } = useContext(AuthContext);
+
+  useLayoutEffect(() => {
+    axios
+      .get("http://192.168.2.13:4001/user")
+      .then((res) => setuserList(res.data))
+      .catch((err) => console.log(err));
+  }, []);
 
   useEffect(() => {
     axios
@@ -34,7 +42,7 @@ function Login() {
   }
 
   function validatePassword() {
-    const list = userData.filter((user) => user.name === username);
+    const list = userList.filter((user) => user.name === username);
     const intPassword = parseInt(password);
     console.log(list[0].password, intPassword);
     if (list[0].password !== intPassword) {
@@ -74,7 +82,7 @@ function Login() {
                 required
               >
                 <option></option>
-                {userData
+                {userList
                   .sort((a, b) => (a.id > b.id ? 1 : -1))
                   .map((user, idx) => (
                     <option key={idx}>{user.name}</option>

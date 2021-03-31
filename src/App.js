@@ -3,14 +3,18 @@ import { Route, BrowserRouter as Router, Switch } from "react-router-dom";
 import Login from "./components/Login";
 import DieRequest from "./components/DieRequest/DieRequest";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Nav, Navbar } from "react-bootstrap";
+import { Nav, Navbar, NavDropdown } from "react-bootstrap";
 import { useState } from "react";
 import { BiLogOut } from "react-icons/bi";
+import { AiFillEdit } from "react-icons/ai";
 import { AuthContext } from "./Context/AuthContext";
 import { useMemo } from "react";
 import IssueDie from "./components/IssueDie/IssueDie";
 import { useEffect } from "react";
 import ReportForm from "./components/Report/ReportForm";
+import User from "./components/User/User";
+import CreateUser from "./components/User/CreateUser";
+import EditUser from "./components/User/EditUser";
 
 function App() {
   const [isSignIn, setIsSignIn] = useState(true);
@@ -78,10 +82,21 @@ function App() {
                   <Navbar.Brand>
                     ชื่อผู้ใช้: {userToken[0]}, Shift: {userToken[2]}
                   </Navbar.Brand>
-                  <Nav.Link onClick={() => handleLogout()}>
-                    ออกจากระบบ
-                    <BiLogOut />
-                  </Nav.Link>
+                  <NavDropdown
+                    title={"ตั้งค่า"}
+                    id="basic-nav-dropdown"
+                    alignRight
+                  >
+                    {userToken[4] === 1 ? (
+                      <NavDropdown.Item href="/user">
+                        <AiFillEdit /> จัดการผู้ใช้
+                      </NavDropdown.Item>
+                    ) : null}
+                    <NavDropdown.Divider />
+                    <NavDropdown.Item onClick={() => handleLogout()}>
+                      <BiLogOut /> ออกจากระบบ
+                    </NavDropdown.Item>
+                  </NavDropdown>
                 </Nav>
               )}
             </Navbar>
@@ -92,6 +107,9 @@ function App() {
                 <Route path="/issue" component={IssueDie} />
                 <Route path="/report" component={ReportForm} />
                 <Route path="/login" component={Login} />
+                <Route path="/user" component={User} />
+                <Route path="/user-create" component={CreateUser} />
+                <Route path="/user-edit/:id" component={EditUser} />
               </Switch>
             </div>
           </div>
