@@ -91,18 +91,12 @@ function IssueDie() {
 
   function handleFilterDie(e) {
     // console.log(scanItem, scanLocDie);
-    let scanItemExpt;
-    if (scanItem.substring(scanItem.length - 2, scanItem.length) === "-E") {
-      scanItemExpt = scanItem;
-    } else {
-      scanItemExpt = scanItem + "-E";
-    }
     if (e.charCode === 13 || e.keyCode === 9) {
       e.preventDefault();
       axios
         .get(
           "http://192.168.2.13/api/checkitemlocdie/" +
-            scanItemExpt +
+            scanItem +
             "/" +
             scanLocDie
         )
