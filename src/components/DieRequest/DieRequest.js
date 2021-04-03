@@ -15,10 +15,13 @@ import {
   Row,
   Spinner,
   Table,
+  Toast,
 } from "react-bootstrap";
 import { Redirect } from "react-router-dom";
 import { AiFillEdit } from "react-icons/ai";
 import { FaCheck } from "react-icons/fa";
+import { IoInformationCircleSharp } from "react-icons/io5";
+import "./DieRequest.css";
 
 function DieRequest() {
   const userTokenData = JSON.parse(localStorage.getItem("userToken"));
@@ -40,18 +43,17 @@ function DieRequest() {
   const [delId, setdelId] = useState("");
   const [deleteList, setdeleteList] = useState([]);
   const [delProgress, setdelProgress] = useState(false);
+  const [locdieFound, setlocdieFound] = useState(false);
 
   useLayoutEffect(() => {
     if (userTokenData) {
-      axios
-        .get("http://192.168.2.13:4001/die-usage/")
-        .then((res) => {
-          setdieList(res.data);
-          setisLoading(false);
-        })
-        .catch((err) => console.log(err));
+      axios.get("http://192.168.2.13:4001/die-usage/").then((res) => {
+        setdieList(res.data);
+        setisLoading(false);
+      });
+      //   .catch((err) => console.log(err));
     }
-  }, [dieList, userTokenData]);
+  }, [userTokenData]);
 
   useEffect(() => {
     moment.locale("th");
@@ -74,8 +76,17 @@ function DieRequest() {
           // console.log(res.data.cust_item, res.data.Uf_Loc_die);
           if (res.data.cust_item) {
             setitem(res.data.cust_item);
+          } else {
+            setitem(res.data.item);
           }
-          setlocdie(res.data.Uf_Loc_die);
+
+          if (res.data.Uf_Loc_die) {
+            setlocdie(res.data.Uf_Loc_die);
+            setlocdieFound(false);
+          } else {
+            setlocdie(res.data.Uf_Loc_die);
+            setlocdieFound(true);
+          }
         })
         .catch((err) => {
           //   console.log(err);
@@ -110,11 +121,8 @@ function DieRequest() {
     // console.log(obj);
 
     if (
-      dieList.filter(
-        (die) =>
-          die.item === item &&
-          die.status === "กำลังรอ die"
-      ).length > 0
+      dieList.filter((die) => die.item === item && die.status === "กำลังรอ die")
+        .length > 0
     ) {
       setalertExistData(true);
       setTimeout(() => {
@@ -136,6 +144,10 @@ function DieRequest() {
           }, 3000);
         });
     }
+
+    // axios
+    //   .get("http://192.168.2.13:4001/die-usage/")
+    //   .then((res) => setdieList(res.data));
 
     // reset state
     setitem("");
@@ -175,139 +187,173 @@ function DieRequest() {
   }
 
   return (
-    <div>
-      <Row>
-        {/* Table Section */}
-        <Col>
-          {isEdit ? (
-            <Button variant="success" onClick={() => setisEdit(!isEdit)}>
-              สำเร็จ <FaCheck />
-            </Button>
-          ) : (
-            <Button variant="outline-dark" onClick={() => setisEdit(!isEdit)}>
-              แก้ไข <AiFillEdit />
-            </Button>
-          )}
-          <Table striped bordered hover size="sm" variant="dark">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Job</th>
-                <th>Part No.</th>
-                <th>Loc Die</th>
-                <th>M/C</th>
-                <th>วันที่ / เวลา</th>
-                <th>สถานะ</th>
-              </tr>
-            </thead>
-            <tbody>
-              {isLoading ? (
-                <BeatLoader color="#26A65B" margin="4px" size="16px" />
-              ) : (
-                dieList
-                  .filter(
-                    (die) =>
-                      moment(die.createdAt).diff(moment()) < 1 &&
-                      die.status === "กำลังรอ die" &&
-                      die.mcno === userTokenData[3]
-                  )
-                  .map((die, idx) => (
-                    <tr key={idx}>
-                      <td>{idx + 1}</td>
-                      <td>{die.job}</td>
-                      <td>{die.item}</td>
-                      <td>{die.locdie}</td>
-                      <td>{die.mcno}</td>
-                      <td>{moment(die.createdAt).format("LLL")}</td>
-                      <td>{die.status}</td>
-                      {isEdit ? (
-                        <td>
-                          <Button
-                            variant="danger"
-                            size="sm"
-                            onClick={() => handleDeleteClick(die._id)}
-                          >
-                            X
-                          </Button>
-                        </td>
-                      ) : null}
-                    </tr>
-                  ))
-              )}
-            </tbody>
-          </Table>
-        </Col>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        height: "100%",
+      }}
+    >
+      <div>
+        <Row>
+          {/* Table Section */}
+          <Col>
+            {isEdit ? (
+              <Button variant="success" onClick={() => setisEdit(!isEdit)}>
+                สำเร็จ <FaCheck />
+              </Button>
+            ) : (
+              <Button variant="outline-dark" onClick={() => setisEdit(!isEdit)}>
+                แก้ไข <AiFillEdit />
+              </Button>
+            )}
+            <Table striped bordered hover size="sm" variant="dark">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Job</th>
+                  <th>Part No.</th>
+                  <th>Loc Die</th>
+                  <th>M/C</th>
+                  <th>วันที่ / เวลา</th>
+                  <th>สถานะ</th>
+                </tr>
+              </thead>
+              <tbody>
+                {isLoading ? (
+                  <BeatLoader color="#26A65B" margin="4px" size="16px" />
+                ) : (
+                  dieList
+                    .filter(
+                      (die) =>
+                        moment(die.createdAt).diff(moment()) < 1 &&
+                        die.status === "กำลังรอ die" &&
+                        die.mcno === userTokenData[3]
+                    )
+                    .map((die, idx) => (
+                      <tr key={idx}>
+                        <td>{idx + 1}</td>
+                        <td>{die.job}</td>
+                        <td>{die.item}</td>
+                        <td>{die.locdie}</td>
+                        <td>{die.mcno}</td>
+                        <td>{moment(die.createdAt).format("LLL")}</td>
+                        <td>{die.status}</td>
+                        {isEdit ? (
+                          <td>
+                            <Button
+                              variant="danger"
+                              size="sm"
+                              onClick={() => handleDeleteClick(die._id)}
+                            >
+                              X
+                            </Button>
+                          </td>
+                        ) : null}
+                      </tr>
+                    ))
+                )}
+              </tbody>
+            </Table>
+          </Col>
 
-        {/* Form Section */}
-        <Col lg={5} style={styles.scanSection}>
-          <Row>
-            <Col>
-              <h5>เวลาและวันที่</h5>
+          {/* Form Section */}
+          <Col lg={5} style={styles.scanSection}>
+            <Row>
+              <Col>
+                <h5>เวลาและวันที่</h5>
+                <Form.Control
+                  type="text"
+                  value={currDateTime}
+                  readOnly={true}
+                ></Form.Control>
+              </Col>
+            </Row>
+
+            <Row style={{ marginTop: 15 }}>
+              <Col>
+                <h5>สแกนหมายเลข Job</h5>
+              </Col>
               <Form.Control
+                ref={(el) => (inputRef = el)}
                 type="text"
-                value={currDateTime}
-                readOnly={true}
+                onChange={(e) => setscanInput(e.target.value)}
+                onKeyPress={(e) => handleScaned(e)}
+                onKeyDown={(e) => handleScaned(e)}
+                autoFocus={true}
+                maxLength={10}
               ></Form.Control>
-            </Col>
-          </Row>
+            </Row>
 
-          <Row style={{ marginTop: 15 }}>
-            <Col><h5>สแกนหมายเลข Job</h5></Col>
-            <Form.Control
-              ref={(el) => (inputRef = el)}
-              type="text"
-              onChange={(e) => setscanInput(e.target.value)}
-              onKeyPress={(e) => handleScaned(e)}
-              onKeyDown={(e) => handleScaned(e)}
-              autoFocus={true}
-              maxLength={10}
-            ></Form.Control>
-          </Row>
+            <Row style={{ marginTop: 15 }}>
+              <Col>
+                <h5>Part No.</h5>
+              </Col>
+              <Col>
+                <h5>Location Die</h5>
+              </Col>
+            </Row>
+            <Row>
+              <Col>
+                <Form.Control value={item} readOnly={true}></Form.Control>
+              </Col>
+              <Col>
+                <Form.Control value={locdie} readOnly={true}></Form.Control>
+              </Col>
+            </Row>
 
-          <Row style={{ marginTop: 15 }}>
-            <Col><h5>Part No.</h5></Col>
-            <Col><h5>Location Die</h5></Col>
-          </Row>
-          <Row>
-            <Col>
-              <Form.Control value={item} readOnly={true}></Form.Control>
-            </Col>
-            <Col>
-              <Form.Control value={locdie} readOnly={true}></Form.Control>
-            </Col>
-          </Row>
+            <Row style={{ marginTop: 15 }}>
+              <Button
+                color="primary"
+                onClick={handleRequestDie}
+                disabled={scanInput.length === 10 ? false : true}
+              >
+                ร้องขอ Die
+              </Button>
+            </Row>
 
-          <Row style={{ marginTop: 15 }}>
-            <Button
-              color="primary"
-              onClick={handleRequestDie}
-              disabled={scanInput.length === 10 ? false : true}
+            <Row style={{ marginTop: 30 }}>
+              <Col>
+                {rendenAlert(
+                  "เกิดข้อผิดพลาด กรุณาลองใหม่",
+                  "danger",
+                  alertCreateErr
+                )}
+                {rendenAlert("กรุณาใส่เลข job!", "danger", alertErr)}
+                {rendenAlert(
+                  "item นี้ มีการเบิกไปแล้ว!",
+                  "danger",
+                  alertExistData
+                )}
+                {rendenAlert("เบิกสำเร็จ!", "success", alertSuccess)}
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+      </div>
+
+      <div style={styles.toastLocdie}>
+        <Toast
+          show={locdieFound}
+          onClose={() => setlocdieFound(false)}
+          animation={true}
+        >
+          <Toast.Header
+            style={{ backgroundColor: "#EB3C37", paddingRight: 20 }}
+          >
+            <strong
+              className="mr-auto"
+              style={{ color: "white", fontSize: 20 }}
             >
-              ร้องขอ Die
-            </Button>
-          </Row>
-
-          <Row style={{ marginTop: 30 }}>
-            <Col>
-              {rendenAlert(
-                "เกิดข้อผิดพลาด กรุณาลองใหม่",
-                "danger",
-                alertCreateErr
-              )}
-              {rendenAlert("กรุณาใส่เลข job!", "danger", alertErr)}
-              {rendenAlert(
-                "item นี้ มีการเบิกไปแล้ว!",
-                "danger",
-                alertExistData
-              )}
-              {rendenAlert("เบิกสำเร็จ!", "success", alertSuccess)}
-            </Col>
-          </Row>
-        </Col>
-      </Row>
+              <IoInformationCircleSharp /> ไม่พบ Location Die!
+            </strong>
+          </Toast.Header>
+        </Toast>
+      </div>
 
       <Modal show={isModalVisible}>
-        <Modal.Header closeButton>
+        <Modal.Header closeButton bsPrefix="toastCloseBtn">
           <Modal.Title>ยืนยันการลบรายการ</Modal.Title>
         </Modal.Header>
 
@@ -347,5 +393,12 @@ const styles = {
   scanSection: {
     paddingLeft: 50,
     paddingRight: 50,
-  }
-}
+  },
+  toastLocdie: {
+    alignSelf: "center",
+    position: "fixed",
+    bottom: 0,
+    marginBottom: 15,
+    alignContent: "center",
+  },
+};
