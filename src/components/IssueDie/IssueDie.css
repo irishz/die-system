@@ -1,4 +1,7 @@
 .activeRow {
-    color: red;
-    font-size: large;
+  color: red;
+  font-size: large;
+}
+.table td {
+  vertical-align: middle;
 }

@@ -25,7 +25,6 @@ import "./DieRequest.css";
 
 function DieRequest() {
   const userTokenData = JSON.parse(localStorage.getItem("userToken"));
-
   const [dieList, setdieList] = useState([]);
   const [scanInput, setscanInput] = useState("");
   let inputRef = null;
@@ -144,10 +143,6 @@ function DieRequest() {
           }, 3000);
         });
     }
-
-    // axios
-    //   .get("http://192.168.2.13:4001/die-usage/")
-    //   .then((res) => setdieList(res.data));
 
     // reset state
     setitem("");
@@ -353,7 +348,7 @@ function DieRequest() {
       </div>
 
       <Modal show={isModalVisible}>
-        <Modal.Header closeButton bsPrefix="toastCloseBtn">
+        <Modal.Header closeButton>
           <Modal.Title>ยืนยันการลบรายการ</Modal.Title>
         </Modal.Header>
 

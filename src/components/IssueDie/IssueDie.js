@@ -17,6 +17,8 @@ import {
   Alert,
   Accordion,
   Toast,
+  Modal,
+  Spinner,
 } from "react-bootstrap";
 import Location from "../Location/Location";
 import { useRef } from "react";
@@ -24,6 +26,7 @@ import { HiChevronDoubleDown, HiChevronDoubleUp } from "react-icons/hi";
 import { RiRefreshLine } from "react-icons/ri";
 import { IoInformationCircle } from "react-icons/io5";
 import "../IssueDie/IssueDie.css";
+import { BsArrowDown, BsArrowUp } from "react-icons/bs";
 
 function IssueDie() {
   const userTokenData = JSON.parse(localStorage.getItem("userToken"));
@@ -43,6 +46,10 @@ function IssueDie() {
   const [toastNewItem, settoastNewItem] = useState(null);
   const [istoastVisible, setistoastVisible] = useState(false);
   const [toastTime, settoastTime] = useState(null);
+  const [filterStatus, setfilterStatus] = useState(false);
+  const [delId, setdelId] = useState("");
+  const [isModalVisible, setisModalVisible] = useState(false);
+  const [delProgress, setdelProgress] = useState(false);
 
   const [itemErr, setitemErr] = useState(false);
   const initCheckDie = {
@@ -133,7 +140,7 @@ function IssueDie() {
   function handleIssueDie() {
     let dieId = getDieId();
 
-    console.log(dieId);
+    // console.log(dieId);
     if (dieId) {
       axios
         .put("http://192.168.2.13:4001/die-usage/update/" + dieId, {
@@ -188,7 +195,7 @@ function IssueDie() {
   }
 
   function handleClickJob(job, idx) {
-    console.log(job, idx);
+    // console.log(job, idx);
     setjob(job);
     setactiveRow(idx);
   }
@@ -205,6 +212,24 @@ function IssueDie() {
     setprevDieList(dieList);
     setistoastVisible(false);
     settoastTime(null);
+  }
+
+  function handleDeleteClick(id) {
+    setdelId(id);
+    setisModalVisible(true);
+  }
+
+  function onDelete() {
+    setdelProgress(true);
+
+    axios
+      .delete("http://192.168.2.13:4001/die-usage/delete/" + delId)
+      .then(() => {
+        setdelId("");
+        setisModalVisible(false);
+        setdelProgress(false);
+      })
+      .catch((err) => console.log(err));
   }
 
   return (
@@ -240,14 +265,16 @@ function IssueDie() {
 
       <Table striped bordered size="sm" style={{ border: "1px solid #aaaaaa" }}>
         <thead>
-          <tr>
+          <tr style={{ alignItems: "center" }}>
             <th>#</th>
             <th>Job</th>
             <th>Part</th>
             <th>Loc Die</th>
             <th>M/C</th>
             <th>Duration</th>
-            <th>Status</th>
+            <th onClick={() => setfilterStatus(!filterStatus)}>
+              Status {filterStatus ? <BsArrowDown /> : <BsArrowUp />}
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -277,6 +304,20 @@ function IssueDie() {
                       </strong>
                     </td>
                     <td>{die.status}</td>
+                    <td
+                      style={{
+                        backgroundColor: "white",
+                        borderWidth: 0,
+                      }}
+                    >
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        onClick={() => handleDeleteClick(die._id)}
+                      >
+                        ลบ
+                      </Button>
+                    </td>
                   </tr>
                 ))
             : dieList
@@ -304,7 +345,21 @@ function IssueDie() {
                         {moment(die.createdAt).startOf().fromNow()}
                       </strong>
                     </td>
-                    <td>{die.status}</td>
+                    <td style={styles.rowStatus}>{die.status}</td>
+                    <td
+                      style={{
+                        backgroundColor: "white",
+                        borderWidth: 0,
+                      }}
+                    >
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        onClick={() => handleDeleteClick(die._id)}
+                      >
+                        ลบ
+                      </Button>
+                    </td>
                   </tr>
                 ))}
         </tbody>
@@ -492,6 +547,34 @@ function IssueDie() {
           คุณมี <strong>{toastNewItem}</strong> คำร้องใหม่ที่ยังไม่ได้จ่าย
         </Toast.Body>
       </Toast>
+
+      <Modal show={isModalVisible}>
+        <Modal.Header closeButton>
+          <Modal.Title>ยืนยันการลบรายการ</Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>
+          <p>คุณต้องการลบ</p>
+          <strong>Job : {dieList.length > 0 ? dieList[0].job : null}</strong>
+          <br />
+          <strong>Item : {dieList.length > 0 ? dieList[0].item : null}</strong>
+          <br />
+          ใช่หรือไม่?
+        </Modal.Body>
+
+        <Modal.Footer>
+          <Button variant="danger" onClick={() => onDelete()}>
+            {delProgress ? (
+              <Spinner as="span" animation="border" role="status" size="sm" />
+            ) : (
+              "ยืนยัน"
+            )}
+          </Button>
+          <Button variant="secondary" onClick={() => setisModalVisible(false)}>
+            ยกเลิก
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 }
@@ -506,13 +589,19 @@ const styles = {
   },
   waitDie: {
     backgroundColor: "#FEDF7F",
+    justifyContent: "center",
   },
   issueDie: {
     backgroundColor: "#54E0B7",
+    justifyContent: "center",
   },
   notiToast: {
     position: "absolute",
     bottom: 0,
     right: 0,
+  },
+  rowStatus: {
+    display: "flex",
+    justifyContent: "space-between",
   },
 };
