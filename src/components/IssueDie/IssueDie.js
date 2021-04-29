@@ -74,14 +74,14 @@ function IssueDie() {
 
   useLayoutEffect(() => {
     axios
-      .get("http://192.168.2.13:4001/die-usage/")
+      .get("http://192.168.2.13:4002/die-usage/")
       .then((res) => setprevDieList(res.data))
       .catch((err) => console.log(err));
   }, []);
 
   useEffect(() => {
     axios
-      .get("http://192.168.2.13:4001/die-usage/")
+      .get("http://192.168.2.13:4002/die-usage/")
       .then((res) => setdieList(res.data))
       .catch((err) => console.log(err));
 
@@ -143,7 +143,7 @@ function IssueDie() {
     // console.log(dieId);
     if (dieId) {
       axios
-        .put("http://192.168.2.13:4001/die-usage/update/" + dieId, {
+        .put("http://192.168.2.13:4002/die-usage/update/" + dieId, {
           status: "จ่ายแล้ว",
           issuedBy: userTokenData[0],
           issuedAt: moment(),
@@ -165,7 +165,7 @@ function IssueDie() {
 
     if (dieId) {
       axios
-        .put("http://192.168.2.13:4001/die-usage/update/" + dieId, {
+        .put("http://192.168.2.13:4002/die-usage/update/" + dieId, {
           status: "รับคืนแล้ว",
           recievedBy: userTokenData[0],
           recievedAt: moment(),
@@ -223,7 +223,7 @@ function IssueDie() {
     setdelProgress(true);
 
     axios
-      .delete("http://192.168.2.13:4001/die-usage/delete/" + delId)
+      .delete("http://192.168.2.13:4002/die-usage/delete/" + delId)
       .then(() => {
         setdelId("");
         setisModalVisible(false);

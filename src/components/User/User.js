@@ -24,7 +24,7 @@ function User() {
 
   useEffect(() => {
     axios
-      .get("http://192.168.2.13:4001/user")
+      .get("http://192.168.2.13:4002/user")
       .then((res) => {
         setisLoading(false);
         setuserList(res.data);
@@ -48,7 +48,7 @@ function User() {
 
   function deleteUser() {
     axios
-      .delete("http://192.168.2.13:4001/user/delete/" + delId)
+      .delete("http://192.168.2.13:4002/user/delete/" + delId)
       .then(() => {
         setalertDeleteSuccess(true);
         setTimeout(() => {

@@ -23,14 +23,14 @@ function Login() {
 
   useLayoutEffect(() => {
     axios
-      .get("http://192.168.2.13:4001/user")
+      .get("http://192.168.2.13:4002/user")
       .then((res) => setuserList(res.data))
       .catch((err) => console.log(err));
   }, []);
 
   useEffect(() => {
     axios
-      .get("http://192.168.2.13:4001/machine")
+      .get("http://192.168.2.13:4002/machine")
       .then((res) => setmachList(res.data))
       .catch((err) => console.log(err));
   }, [machList]);

@@ -17,7 +17,7 @@ function EditUser() {
 
   useEffect(() => {
     axios
-      .get("http://192.168.2.13:4001/user/edit/" + id)
+      .get("http://192.168.2.13:4002/user/edit/" + id)
       .then((res) => {
         setuserList(res.data);
         setfirstnameInput(res.data.name.split(" ")[0]);
@@ -36,7 +36,7 @@ function EditUser() {
       username: firstnameInput + " " + lastnameInput,
     };
 
-    axios.put("http://192.168.2.13:4001/user/update/" + id, obj).then(() => {
+    axios.put("http://192.168.2.13:4002/user/update/" + id, obj).then(() => {
       setalertEditSuccess(true);
       setTimeout(() => {
         setalertEditSuccess(false);

@@ -12,7 +12,7 @@ const locationRoute = require('./route/location.routes');
 const userRoute = require('./route/user.routes');
 
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb+srv://icezjetsada:Irishz01@cluster0.kxplg.mongodb.net/die?retryWrites=true&w=majority', {
+mongoose.connect('mongodb://127.0.0.1:27017/die?retryWrites=true&w=majority', {
     useNewUrlParser: true,
     useUnifiedTopology: true
 }).then(() => {
@@ -36,7 +36,7 @@ app.use('/location', locationRoute);
 app.use('/user', userRoute);
 
 
-const port = process.env.PORT || 4001;
+const port = process.env.PORT || 4002;
 const server = app.listen(port, '0.0.0.0', () => {
     console.log('Connected to port ' + port)
 })

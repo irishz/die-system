@@ -18,7 +18,7 @@ function CreateUser() {
 
   useLayoutEffect(() => {
     axios
-      .get("http://192.168.2.13:4001/user")
+      .get("http://192.168.2.13:4002/user")
       .then((res) => setuserCount(res.data.length))
       .catch((err) => console.log(err));
   }, []);
@@ -44,7 +44,7 @@ function CreateUser() {
     if (match === true) {
       //   console.log("user created!");
       axios
-        .post("http://192.168.2.13:4001/user/create", obj)
+        .post("http://192.168.2.13:4002/user/create", obj)
         .then(() => {
           setalertCreateSuccess(true);
           setTimeout(() => {
