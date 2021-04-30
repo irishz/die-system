@@ -28,10 +28,19 @@ function EditUser() {
 
   function handleSubmit() {
     console.log(userList);
+    let tempPass = passwordInput
+    let tempDept = deptInput
+    if (tempPass.length <= 0) {
+      tempPass = userList.password;
+    }
+    if (deptInput.length <= 0) {
+      tempDept = userList.department
+    }
+    console.log("temp:" + tempPass + tempDept);
     let obj = {
       id: userList.id,
       name: firstnameInput + " " + lastnameInput,
-      password: passwordInput,
+      password: tempPass,
       dept: deptInput,
       username: firstnameInput + " " + lastnameInput,
     };
