@@ -41,7 +41,7 @@ function EditUser() {
       id: userList.id,
       name: firstnameInput + " " + lastnameInput,
       password: tempPass,
-      dept: deptInput,
+      dept: tempDept,
       username: firstnameInput + " " + lastnameInput,
     };
 
