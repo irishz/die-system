@@ -94,6 +94,7 @@ function IssueDie() {
     if (istoastVisible) {
       settoastTime(moment());
     }
+    console.log(moment("2021-04-28T01:36:44.000Z").diff(moment()));
   }, [dieList, istoastVisible, prevDieList.length]);
 
   function handleFilterDie(e) {
@@ -280,6 +281,7 @@ function IssueDie() {
         <tbody>
           {activeDieStatus === "ทั้งหมด"
             ? dieList
+                .filter((die) => moment(die.createdAt).diff(moment(), "days") >= 0)
                 .sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1))
                 .sort((a, b) => (a.mcno > b.mcno ? 1 : -1))
                 .map((die, idx) => (
@@ -321,7 +323,7 @@ function IssueDie() {
                   </tr>
                 ))
             : dieList
-                .filter((die) => die.status === activeDieStatus)
+                .filter((die) => die.status === activeDieStatus && moment(die.createdAt).diff(moment(), "days") >= 0)
                 .sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1))
                 .sort((a, b) => (a.mcno > b.mcno ? 1 : -1))
                 .map((die, idx) => (

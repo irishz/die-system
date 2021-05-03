@@ -222,7 +222,7 @@ function DieRequest() {
                   dieList
                     .filter(
                       (die) =>
-                        moment(die.createdAt).diff(moment()) < 1 &&
+                        moment(die.createdAt).diff(moment(), "days") >= 0 &&
                         die.status === "กำลังรอ die" &&
                         die.mcno === userTokenData[3]
                     )
