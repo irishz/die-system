@@ -94,7 +94,7 @@ function IssueDie() {
     if (istoastVisible) {
       settoastTime(moment());
     }
-    console.log(moment("2021-04-28T01:36:44.000Z").diff(moment()));
+    // console.log(moment("2021-04-28T01:36:44.000Z").diff(moment()));
   }, [dieList, istoastVisible, prevDieList.length]);
 
   function handleFilterDie(e) {
@@ -127,7 +127,15 @@ function IssueDie() {
 
   function getDieId() {
     let dieId = null;
-    let list = dieList.filter((die) => die.item === scanItem);
+    let list = dieList.filter((die) => die.item === scanItem && die.status === "จ่ายแล้ว");
+    dieId = list[0]._id;
+
+    return dieId;
+  }
+
+  function getDieIdForIssue() {
+    let dieId = null;
+    let list = dieList.filter((die) => die.item === scanItem && die.status === "กำลังรอ die");
     dieId = list[0]._id;
 
     return dieId;
@@ -139,9 +147,9 @@ function IssueDie() {
   }
 
   function handleIssueDie() {
-    let dieId = getDieId();
+    let dieId = getDieIdForIssue();
 
-    // console.log(dieId);
+    console.log("dieId:" + dieId);
     if (dieId) {
       axios
         .put("http://192.168.2.13:4002/die-usage/update/" + dieId, {
@@ -164,6 +172,7 @@ function IssueDie() {
   function handleRecieve() {
     let dieId = getDieId();
 
+    console.log("recieving:" + dieId);
     if (dieId) {
       axios
         .put("http://192.168.2.13:4002/die-usage/update/" + dieId, {
@@ -281,7 +290,7 @@ function IssueDie() {
         <tbody>
           {activeDieStatus === "ทั้งหมด"
             ? dieList
-                .filter((die) => moment(die.createdAt).diff(moment(), "days") >= 0)
+                .filter((die) => moment(die.createdAt).diff(moment(), "days") >= 0 && die.status !== "รับคืนแล้ว")
                 .sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1))
                 .sort((a, b) => (a.mcno > b.mcno ? 1 : -1))
                 .map((die, idx) => (
