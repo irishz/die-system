@@ -113,14 +113,14 @@ function DieRequest() {
       requestBy: userTokenData[0],
       issuedBy: null,
       issuedAt: null,
-      recievedBy: null,
-      recievedAt: null,
+      receivedBy: null,
+      receivedAt: null,
       checkDie: null,
     };
     // console.log(obj);
 
     if (
-      dieList.filter((die) => die.item === item && die.status === "กำลังรอ die")
+      dieList.filter((die) => die.item === item && (die.status === "กำลังรอ die" || die.status === "จ่ายแล้ว"))
         .length > 0
     ) {
       setalertExistData(true);

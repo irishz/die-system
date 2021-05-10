@@ -30,10 +30,10 @@ let dieusageSchema = new Schema(
     issuedAt: {
       type: Date,
     },
-    recievedBy: {
+    receivedBy: {
       type: String,
     },
-    recievedAt: {
+    receivedAt: {
       type: Date,
     },
   },

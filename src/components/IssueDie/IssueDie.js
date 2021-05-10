@@ -51,6 +51,7 @@ function IssueDie() {
   const [isModalVisible, setisModalVisible] = useState(false);
   const [delProgress, setdelProgress] = useState(false);
 
+  const [alertNotFoundRequestDie, setalertNotFoundRequestDie] = useState(false);
   const [itemErr, setitemErr] = useState(false);
   const initCheckDie = {
     wood: [
@@ -127,7 +128,9 @@ function IssueDie() {
 
   function getDieId() {
     let dieId = null;
-    let list = dieList.filter((die) => die.item === scanItem && die.status === "จ่ายแล้ว");
+    let list = dieList.filter(
+      (die) => die.item === scanItem && die.status === "จ่ายแล้ว"
+    );
     dieId = list[0]._id;
 
     return dieId;
@@ -135,10 +138,19 @@ function IssueDie() {
 
   function getDieIdForIssue() {
     let dieId = null;
-    let list = dieList.filter((die) => die.item === scanItem && die.status === "กำลังรอ die");
-    dieId = list[0]._id;
+    let list = dieList.filter(
+      (die) => die.item === scanItem && die.status === "กำลังรอ die"
+    );
 
-    return dieId;
+    if (list.length > 0) {
+      dieId = list[0]._id;
+      return dieId;
+    } else {
+      setalertNotFoundRequestDie(true);
+      setTimeout(() => {
+        setalertNotFoundRequestDie(false);
+      }, 3000);
+    }
   }
 
   function onActiveDieChange(e) {
@@ -169,7 +181,7 @@ function IssueDie() {
     }
   }
 
-  function handleRecieve() {
+  function handleReceive() {
     let dieId = getDieId();
 
     console.log("recieving:" + dieId);
@@ -177,8 +189,8 @@ function IssueDie() {
       axios
         .put("http://192.168.2.13:4002/die-usage/update/" + dieId, {
           status: "รับคืนแล้ว",
-          recievedBy: userTokenData[0],
-          recievedAt: moment(),
+          receivedBy: userTokenData[0],
+          receivedAt: moment(),
           checkDie: checkDie,
         })
         .then(() => {
@@ -290,7 +302,11 @@ function IssueDie() {
         <tbody>
           {activeDieStatus === "ทั้งหมด"
             ? dieList
-                .filter((die) => moment(die.createdAt).diff(moment(), "days") >= 0 && die.status !== "รับคืนแล้ว")
+                .filter(
+                  (die) =>
+                    moment(die.createdAt).diff(moment(), "days") >= 0 &&
+                    die.status !== "รับคืนแล้ว"
+                )
                 .sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1))
                 .sort((a, b) => (a.mcno > b.mcno ? 1 : -1))
                 .map((die, idx) => (
@@ -332,7 +348,11 @@ function IssueDie() {
                   </tr>
                 ))
             : dieList
-                .filter((die) => die.status === activeDieStatus && moment(die.createdAt).diff(moment(), "days") >= 0)
+                .filter(
+                  (die) =>
+                    die.status === activeDieStatus &&
+                    moment(die.createdAt).diff(moment(), "days") >= 0
+                )
                 .sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1))
                 .sort((a, b) => (a.mcno > b.mcno ? 1 : -1))
                 .map((die, idx) => (
@@ -482,6 +502,11 @@ function IssueDie() {
               {itemErr ? (
                 <Alert variant="danger">ข้อมูลไม่ตรงกับในระบบ</Alert>
               ) : null}
+              {alertNotFoundRequestDie ? (
+                <Alert variant="danger">
+                  ไม่พบการร้องขอ item นี้ กรุณาตรวจสอบข้อมูลใหม่อีกครั้ง!
+                </Alert>
+              ) : null}
             </Card.Body>
           </Card>
         </Col>
@@ -533,7 +558,7 @@ function IssueDie() {
                 variant={issueBtn ? "secondary" : "primary"}
                 style={{ width: "100%" }}
                 disabled={issueBtn}
-                onClick={handleRecieve}
+                onClick={handleReceive}
               >
                 เก็บเข้าช่อง
               </Button>
