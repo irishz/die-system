@@ -27,7 +27,7 @@ import { RiRefreshLine } from "react-icons/ri";
 import { IoInformationCircle } from "react-icons/io5";
 import "../IssueDie/IssueDie.css";
 import { BsArrowDown, BsArrowUp } from "react-icons/bs";
-import {BeatLoader} from 'halogenium'; 
+import { BeatLoader } from "halogenium";
 
 function IssueDie() {
   const userTokenData = JSON.parse(localStorage.getItem("userToken"));
@@ -77,7 +77,7 @@ function IssueDie() {
 
   useLayoutEffect(() => {
     axios
-      .get("http://192.168.2.13:4002/die-usage/")
+      .get("http://192.168.2.13:4002/die-usage/no-received")
       .then((res) => {
         setprevDieList(res.data);
         setisLoading(false);
@@ -87,7 +87,7 @@ function IssueDie() {
 
   useEffect(() => {
     axios
-      .get("http://192.168.2.13:4002/die-usage/")
+      .get("http://192.168.2.13:4002/die-usage/no-received")
       .then((res) => setdieList(res.data))
       .catch((err) => console.log(err));
 
@@ -305,99 +305,99 @@ function IssueDie() {
           </tr>
         </thead>
         <tbody>
-          {isLoading ? <BeatLoader color="#26A65B" size="16px" /> : activeDieStatus === "ทั้งหมด"
-            ? dieList
-                .filter(
-                  (die) =>
-                    moment(die.createdAt).diff(moment(), "days") >= 0 &&
-                    die.status !== "รับคืนแล้ว"
-                )
-                .sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1))
-                .sort((a, b) => (a.mcno > b.mcno ? 1 : -1))
-                .map((die, idx) => (
-                  <tr
-                    key={idx}
-                    style={
-                      die.status === "กำลังรอ die"
-                        ? styles.waitDie
-                        : styles.issueDie
-                    }
-                    onClick={() => handleClickJob(die.job, idx)}
-                    className={idx === activeRow ? "activeRow" : "inactiveRow"}
+          {isLoading ? (
+            <label>กำลังโหลดข้อมูล...</label>
+          ) : activeDieStatus === "ทั้งหมด" ? (
+            dieList
+              .filter(
+                (die) =>
+                  moment(die.createdAt).diff(moment(), "days") >= 0 &&
+                  die.status !== "รับคืนแล้ว"
+              )
+              .sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1))
+              .sort((a, b) => (a.mcno > b.mcno ? 1 : -1))
+              .map((die, idx) => (
+                <tr
+                  key={idx}
+                  style={
+                    die.status === "กำลังรอ die"
+                      ? styles.waitDie
+                      : styles.issueDie
+                  }
+                  onClick={() => handleClickJob(die.job, idx)}
+                  className={idx === activeRow ? "activeRow" : "inactiveRow"}
+                >
+                  <td>{idx + 1}</td>
+                  <td>{die.job}</td>
+                  <td>{die.item}</td>
+                  <td>{die.locdie}</td>
+                  <td>{die.mcno}</td>
+                  <td>
+                    <strong>{moment(die.createdAt).startOf().fromNow()}</strong>
+                  </td>
+                  <td>{die.status}</td>
+                  <td
+                    style={{
+                      backgroundColor: "white",
+                      borderWidth: 0,
+                    }}
                   >
-                    <td>{idx + 1}</td>
-                    <td>{die.job}</td>
-                    <td>{die.item}</td>
-                    <td>{die.locdie}</td>
-                    <td>{die.mcno}</td>
-                    <td>
-                      <strong>
-                        {moment(die.createdAt).startOf().fromNow()}
-                      </strong>
-                    </td>
-                    <td>{die.status}</td>
-                    <td
-                      style={{
-                        backgroundColor: "white",
-                        borderWidth: 0,
-                      }}
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => handleDeleteClick(die._id)}
                     >
-                      <Button
-                        variant="danger"
-                        size="sm"
-                        onClick={() => handleDeleteClick(die._id)}
-                      >
-                        ลบ
-                      </Button>
-                    </td>
-                  </tr>
-                ))
-            : dieList
-                .filter(
-                  (die) =>
-                    die.status === activeDieStatus &&
-                    moment(die.createdAt).diff(moment(), "days") >= 0
-                )
-                .sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1))
-                .sort((a, b) => (a.mcno > b.mcno ? 1 : -1))
-                .map((die, idx) => (
-                  <tr
-                    key={idx}
-                    style={
-                      die.status === "กำลังรอ die"
-                        ? styles.waitDie
-                        : styles.issueDie
-                    }
-                    onClick={() => handleClickJob(die.job, idx)}
-                    className={idx === activeRow ? "activeRow" : "inactiveRow"}
+                      ลบ
+                    </Button>
+                  </td>
+                </tr>
+              ))
+          ) : (
+            dieList
+              .filter(
+                (die) =>
+                  die.status === activeDieStatus &&
+                  moment(die.createdAt).diff(moment(), "days") >= 0
+              )
+              .sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1))
+              .sort((a, b) => (a.mcno > b.mcno ? 1 : -1))
+              .map((die, idx) => (
+                <tr
+                  key={idx}
+                  style={
+                    die.status === "กำลังรอ die"
+                      ? styles.waitDie
+                      : styles.issueDie
+                  }
+                  onClick={() => handleClickJob(die.job, idx)}
+                  className={idx === activeRow ? "activeRow" : "inactiveRow"}
+                >
+                  <td>{idx + 1}</td>
+                  <td>{die.job}</td>
+                  <td>{die.item}</td>
+                  <td>{die.locdie}</td>
+                  <td>{die.mcno}</td>
+                  <td>
+                    <strong>{moment(die.createdAt).startOf().fromNow()}</strong>
+                  </td>
+                  <td style={styles.rowStatus}>{die.status}</td>
+                  <td
+                    style={{
+                      backgroundColor: "white",
+                      borderWidth: 0,
+                    }}
                   >
-                    <td>{idx + 1}</td>
-                    <td>{die.job}</td>
-                    <td>{die.item}</td>
-                    <td>{die.locdie}</td>
-                    <td>{die.mcno}</td>
-                    <td>
-                      <strong>
-                        {moment(die.createdAt).startOf().fromNow()}
-                      </strong>
-                    </td>
-                    <td style={styles.rowStatus}>{die.status}</td>
-                    <td
-                      style={{
-                        backgroundColor: "white",
-                        borderWidth: 0,
-                      }}
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => handleDeleteClick(die._id)}
                     >
-                      <Button
-                        variant="danger"
-                        size="sm"
-                        onClick={() => handleDeleteClick(die._id)}
-                      >
-                        ลบ
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
+                      ลบ
+                    </Button>
+                  </td>
+                </tr>
+              ))
+          )}
         </tbody>
       </Table>
 
@@ -579,7 +579,7 @@ function IssueDie() {
         onClose={() => handleToastClose()}
         animation={true}
       >
-        <Toast.Header>
+        <Toast.Header style={{ justifyContent: "space-between" }}>
           <IoInformationCircle size={16} color="red" />
           <strong className="mr-auto">คำร้องใหม่!</strong>
           <small>{moment().startOf().fromNow()}</small>

@@ -25,6 +25,18 @@ router.route("/").get((req, res, next) => {
   });
 });
 
+// get die usage data not include status Received
+router.route("/no-received").get((req, res, next) => {
+  // eslint-disable-next-line array-callback-return
+  dieUsage.find({status: {$ne: "รับคืนแล้ว"}},(error, data) => {
+    if (error) {
+      return next(error);
+    } else {
+      res.json(data);
+    }
+  });
+});
+
 // get data by machine nubmer
 router.route("/find/:mcno").get((req, res, next) => {
   // eslint-disable-next-line array-callback-return
