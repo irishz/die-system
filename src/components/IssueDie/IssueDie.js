@@ -27,6 +27,7 @@ import { RiRefreshLine } from "react-icons/ri";
 import { IoInformationCircle } from "react-icons/io5";
 import "../IssueDie/IssueDie.css";
 import { BsArrowDown, BsArrowUp } from "react-icons/bs";
+import {BeatLoader} from 'halogenium'; 
 
 function IssueDie() {
   const userTokenData = JSON.parse(localStorage.getItem("userToken"));
@@ -50,6 +51,7 @@ function IssueDie() {
   const [delId, setdelId] = useState("");
   const [isModalVisible, setisModalVisible] = useState(false);
   const [delProgress, setdelProgress] = useState(false);
+  const [isLoading, setisLoading] = useState(true);
 
   const [alertNotFoundRequestDie, setalertNotFoundRequestDie] = useState(false);
   const [itemErr, setitemErr] = useState(false);
@@ -76,7 +78,10 @@ function IssueDie() {
   useLayoutEffect(() => {
     axios
       .get("http://192.168.2.13:4002/die-usage/")
-      .then((res) => setprevDieList(res.data))
+      .then((res) => {
+        setprevDieList(res.data);
+        setisLoading(false);
+      })
       .catch((err) => console.log(err));
   }, []);
 
@@ -300,7 +305,7 @@ function IssueDie() {
           </tr>
         </thead>
         <tbody>
-          {activeDieStatus === "ทั้งหมด"
+          {isLoading ? <BeatLoader color="#26A65B" size="16px" /> : activeDieStatus === "ทั้งหมด"
             ? dieList
                 .filter(
                   (die) =>
