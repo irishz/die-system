@@ -1,16 +1,28 @@
 import moment from "moment";
 import React, { useEffect } from "react";
-import { Table } from "react-bootstrap";
+import { Row, Table } from "react-bootstrap";
+import ReactToExcel from "react-html-table-to-excel";
 
 function ReportDelay(props) {
+  const currDate = moment().format('LLL');
+
   useEffect(() => {
     console.log(props.list);
   }, [props]);
 
   return (
     <div>
-      <h5>ReportDelay</h5>
-      <Table striped bordered hover size="sm">
+      <Row style={{ justifyContent: "space-between" }}>
+        <h5>ReportDelay</h5>
+        <ReactToExcel
+            className="btn-success"
+            table="report-delay"
+            filename={"report-delay-" + currDate}
+            sheet="sheet 1"
+            buttonText="Export"
+          />
+      </Row>
+      <Table striped bordered hover size="sm" id="report-delay">
         <thead>
           <tr>
             <th>#</th>
@@ -36,7 +48,7 @@ function ReportDelay(props) {
                   moment(list.issuedAt).format("DD/MM/YYYY") <= props.endDate)
             )
             .map((list, idx) => (
-              <tr style={{ fontSize: 12 }}>
+              <tr style={{ fontSize: 12 }} key={idx}>
                 <td>{idx + 1}</td>
                 <td>{list.job}</td>
                 <td>{list.item}</td>

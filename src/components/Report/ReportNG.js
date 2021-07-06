@@ -1,16 +1,28 @@
 import moment from "moment";
 import React, { useEffect } from "react";
-import { Col, Container, Row, Table } from "react-bootstrap";
+import { Row, Table } from "react-bootstrap";
+import ReactToExcel from "react-html-table-to-excel";
 
 function ReportNG(props) {
+  const currDate = moment().format('LLL');
+
   useEffect(() => {
     console.log(props.list);
   }, [props]);
 
   return (
     <div>
-      <h5>ReportNG</h5>
-      <Table striped bordered hover>
+      <Row style={{ justifyContent: "space-between" }}>
+        <h5>ReportNG</h5>
+        <ReactToExcel
+          className="btn-success"
+          table="report-NG"
+          filename={"report-NG-" + currDate}
+          sheet="sheet 1"
+          buttonText="Export"
+        />
+      </Row>
+      <Table striped bordered hover id="report-NG">
         <thead>
           <tr>
             <th colSpan={6}></th>
@@ -58,7 +70,7 @@ function ReportNG(props) {
                   moment(list.createdAt).format("DD/MM/YYYY") <= props.endDate)
             )
             .map((list, idx) => (
-              <tr style={{ fontSize: 12 }}>
+              <tr style={{ fontSize: 12 }} key={idx}>
                 <td>{list.job}</td>
                 <td>{list.item}</td>
                 <td>{list.locdie}</td>
@@ -88,13 +100,3 @@ function ReportNG(props) {
 }
 
 export default ReportNG;
-
-const styles = {
-  header: {
-    display: "flex",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderStyle: "solid",
-    alignItems: "center",
-  },
-};

@@ -1,16 +1,28 @@
 import moment from "moment";
 import React, { useEffect } from "react";
-import { Table } from "react-bootstrap";
+import { Table, Row } from "react-bootstrap";
+import ReactToExcel from "react-html-table-to-excel";
 
 function ReportAll(props) {
+  const currDate = moment().format('LLL');
+
   useEffect(() => {
     console.log(props.list);
   }, [props]);
 
   return (
     <div>
-      <h5>ReportAll</h5>
-      <Table striped bordered hover size="md">
+      <Row style={{ justifyContent: "space-between" }}>
+        <h5>ReportAll</h5>
+        <ReactToExcel
+          className="btn-success"
+          table="report-all"
+          filename={"report-all-" + currDate}
+          sheet="sheet 1"
+          buttonText="Export"
+        />
+      </Row>
+      <Table striped bordered hover size="md" id="report-all">
         <thead>
           <tr>
             <th>#</th>
@@ -37,7 +49,7 @@ function ReportAll(props) {
                   moment(list.createdAt).format("DD/MM/YYYY") <= props.endDate)
             )
             .map((list, idx) => (
-              <tr style={{ fontSize: 12 }}>
+              <tr style={{ fontSize: 12 }} key={idx}>
                 <td>{idx + 1}</td>
                 <td>{list.job}</td>
                 <td>{list.item}</td>

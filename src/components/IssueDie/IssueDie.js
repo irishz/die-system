@@ -27,7 +27,6 @@ import { RiRefreshLine } from "react-icons/ri";
 import { IoInformationCircle } from "react-icons/io5";
 import "../IssueDie/IssueDie.css";
 import { BsArrowDown, BsArrowUp } from "react-icons/bs";
-import { BeatLoader } from "halogenium";
 
 function IssueDie() {
   const userTokenData = JSON.parse(localStorage.getItem("userToken"));
@@ -94,11 +93,11 @@ function IssueDie() {
     if (dieList.length > prevDieList.length) {
       settoastNewItem(dieList.length - prevDieList.length);
       setistoastVisible(true);
-      settoastTime(moment());
+      settoastTime(moment().fromNow());
     }
 
     if (istoastVisible) {
-      settoastTime(moment());
+      settoastTime(moment().fromNow());
     }
     // console.log(moment("2021-04-28T01:36:44.000Z").diff(moment()));
   }, [dieList, istoastVisible, prevDieList.length]);

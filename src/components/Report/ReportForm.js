@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   Card,
   Col,
@@ -13,9 +13,9 @@ import axios from "axios";
 import ReportAll from "./ReportAll";
 import ReportNG from "./ReportNG";
 import ReportDelay from "./ReportDelay";
-import { BiRefresh } from 'react-icons/bi'
+import { BiRefresh } from "react-icons/bi";
 import { HiDocumentReport } from "react-icons/hi";
-import { TiExport } from 'react-icons/ti'
+import { BeatLoader } from "halogenium";
 
 const reportList = [
   { id: 1, name: "Report รวม(ร้องขอ-เบิก-จัดเก็บ)" },
@@ -29,13 +29,14 @@ function ReportForm() {
   const [jobStart, setjobStart] = useState(null);
   const [dieList, setdieList] = useState([]);
   const [currRptOpt, setcurrRptOpt] = useState(1);
-  const [isLoading, setisLoading] = useState(true);
+  const [isLoading, setisLoading] = useState("initial");
   const startDateRef = useRef(null);
   const endDateRef = useRef(null);
   const jobRef = useRef(null);
   const tableRef = useRef(null);
 
   function viewReport() {
+    setisLoading(true);
     axios
       .get("http://192.168.2.13:4002/die-usage/")
       .then((res) => {
@@ -87,6 +88,7 @@ function ReportForm() {
     setjobStart(null);
     setstartDate(null);
     setendDate(null);
+    setisLoading("initial")
     startDateRef.current.value = "";
     endDateRef.current.value = "";
     jobRef.current.value = "";
@@ -142,7 +144,7 @@ function ReportForm() {
                   variant="info"
                   onClick={() => handleRefresh()}
                 >
-                  <BiRefresh size={20}/> รีเฟรช
+                  <BiRefresh size={20} /> รีเฟรช
                 </Button>
               </Col>
             </Row>
@@ -196,12 +198,15 @@ function ReportForm() {
             </fieldset>
           </Card.Body>
         </Card>
-        <Button onClick={() => viewReport()}><HiDocumentReport size={20}/> เรียกดูรายงาน</Button>
-        <Button variant="success"><TiExport size={20}/> Export File</Button>
+        <Button onClick={() => viewReport()}>
+          <HiDocumentReport size={20} /> เรียกดูรายงาน
+        </Button>
       </div>
 
-      {isLoading ? (
+      {isLoading === "initial" ? (
         <h4 ref={tableRef}>กรุณากรอกข้อมูลเพื่อดูรายงาน</h4>
+      ) : isLoading ? (
+        <BeatLoader color="#26A65B" margin="4px" size="16px" />
       ) : (
         <div ref={tableRef}>{renderTable()}</div>
       )}
