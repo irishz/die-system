@@ -25,10 +25,24 @@ router.route("/").get((req, res, next) => {
   });
 });
 
+router.route("/date-range/:startDate/:endDate").get((req, res, next) => {
+  // console.log(req.params.startDate);
+  dieUsage.find({ createdAt: {
+    $gte: req.params.startDate,
+    $lt: req.params.endDate
+  } }, (error, data) => {
+    if (error) {
+      return next(error);
+    } else {
+      res.json(data);
+    }
+  });
+});
+
 // get die usage data not include status Received
 router.route("/no-received").get((req, res, next) => {
   // eslint-disable-next-line array-callback-return
-  dieUsage.find({status: {$ne: "รับคืนแล้ว"}},(error, data) => {
+  dieUsage.find({ status: { $ne: "รับคืนแล้ว" } }, (error, data) => {
     if (error) {
       return next(error);
     } else {
@@ -40,7 +54,7 @@ router.route("/no-received").get((req, res, next) => {
 // get data by machine nubmer
 router.route("/find/:mcno").get((req, res, next) => {
   // eslint-disable-next-line array-callback-return
-  dieUsage.find({mcno: req.params.mcno},(error, data) => {
+  dieUsage.find({ mcno: req.params.mcno }, (error, data) => {
     if (error) {
       return next(error);
     } else {
@@ -89,7 +103,5 @@ router.route("/delete/:id").delete((req, res, next) => {
     }
   });
 });
-
-
 
 module.exports = router;
