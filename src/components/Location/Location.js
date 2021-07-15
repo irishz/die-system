@@ -1,7 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useLayoutEffect, useState } from "react";
-import { Col, Container, Image, Row } from "react-bootstrap";
-import MyStyles from "../../App.css";
+import { Col, Container, Row } from "react-bootstrap";
 import desk from "../Location/information-desk.png";
 
 function Location(params) {
@@ -17,7 +16,7 @@ function Location(params) {
     // return () => {
     //   cleanup
     // };
-    console.log(params.job);
+    // console.log(params.job);
   }, []);
 
   useEffect(() => {

@@ -5,3 +5,19 @@
 .table td {
   vertical-align: middle;
 }
+
+.modal-dialog {
+  justify-content: center;
+}
+.modal-content {
+  width: auto;
+  padding: 1rem;
+}
+.modal-body {
+  text-align: center;
+}
+
+#modal-text {
+  color: #26C251;
+  margin-top: 1.5rem;
+}

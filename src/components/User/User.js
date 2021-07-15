@@ -2,17 +2,14 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import {
   Container,
-  Col,
   Row,
   Table,
   Button,
   Alert,
   Modal,
-  Card,
 } from "react-bootstrap";
 import { FaUserEdit, FaUserPlus } from "react-icons/fa";
 import { BeatLoader } from "halogenium";
-import { Link } from "react-router-dom";
 
 function User() {
   const [userList, setuserList] = useState([]);

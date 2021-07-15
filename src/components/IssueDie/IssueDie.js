@@ -27,6 +27,9 @@ import { RiRefreshLine } from "react-icons/ri";
 import { IoInformationCircle } from "react-icons/io5";
 import "../IssueDie/IssueDie.css";
 import { BsArrowDown, BsArrowUp } from "react-icons/bs";
+import ModalStatus from "./ModalStatus";
+import IssuedAudio from '../assets/sounds/IssuedDie.mp3'
+import ReceivedAudio from '../assets/sounds/ReceivedDie.mp3'
 
 function IssueDie() {
   const userTokenData = JSON.parse(localStorage.getItem("userToken"));
@@ -49,8 +52,10 @@ function IssueDie() {
   const [filterStatus, setfilterStatus] = useState(false);
   const [delId, setdelId] = useState("");
   const [isModalVisible, setisModalVisible] = useState(false);
+  const [isAlertModal, setisAlertModal] = useState(false);
   const [delProgress, setdelProgress] = useState(false);
   const [isLoading, setisLoading] = useState(true);
+  const [typeModal, settypeModal] = useState(null);
 
   const [alertNotFoundRequestDie, setalertNotFoundRequestDie] = useState(false);
   const [itemErr, setitemErr] = useState(false);
@@ -73,6 +78,9 @@ function IssueDie() {
     ],
   };
   const [checkDie, setcheckDie] = useState(initCheckDie);
+
+  const issuedDieAudio = new Audio(IssuedAudio);
+  const ReceivedDieAudio = new Audio(ReceivedAudio);
 
   useLayoutEffect(() => {
     axios
@@ -100,7 +108,7 @@ function IssueDie() {
       settoastTime(moment().fromNow());
     }
     // console.log(moment("2021-04-28T01:36:44.000Z").diff(moment()));
-  }, [dieList, istoastVisible, prevDieList.length]);
+  }, [dieList, istoastVisible, prevDieList.length, settoastTime]);
 
   function handleFilterDie(e) {
     // console.log(scanItem, scanLocDie);
@@ -165,6 +173,11 @@ function IssueDie() {
   function handleIssueDie() {
     let dieId = getDieIdForIssue();
 
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+
     console.log("dieId:" + dieId);
     if (dieId) {
       axios
@@ -178,6 +191,13 @@ function IssueDie() {
           setLocDie("");
           setjob("");
           setissueBtn(true);
+          issuedDieAudio.play();
+          setisAlertModal(true);
+          settypeModal("issued");
+          setTimeout(() => {
+            setisAlertModal(false);
+            window.scrollTo(0, 0);
+          }, 2000);
           itemRef.current.value = "";
           locdieRef.current.value = "";
         })
@@ -187,6 +207,11 @@ function IssueDie() {
 
   function handleReceive() {
     let dieId = getDieId();
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
 
     console.log("recieving:" + dieId);
     if (dieId) {
@@ -201,6 +226,12 @@ function IssueDie() {
           setItem("");
           setLocDie("");
           setissueBtn(true);
+          setisAlertModal(true);
+          ReceivedDieAudio.play();
+          settypeModal("received");
+          setTimeout(() => {
+            setisAlertModal(false);
+          }, 2000);
           setjob("");
           itemRef.current.value = "";
           locdieRef.current.value = "";
@@ -588,6 +619,7 @@ function IssueDie() {
         </Toast.Body>
       </Toast>
 
+      {/* Modal confirm delete */}
       <Modal show={isModalVisible}>
         <Modal.Header closeButton>
           <Modal.Title>ยืนยันการลบรายการ</Modal.Title>
@@ -615,6 +647,9 @@ function IssueDie() {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      {/* Alert issue and receive modal */}
+      <ModalStatus show={isAlertModal} type={typeModal} />
     </Container>
   );
 }
