@@ -1,7 +1,6 @@
-import { Container } from "@material-ui/core";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { Button, Col, Form, Row, Alert } from "react-bootstrap";
+import { Button, Col, Form, Row, Alert, Container } from "react-bootstrap";
 import { FaUserEdit } from "react-icons/fa";
 import { useHistory, useParams } from "react-router";
 
@@ -28,13 +27,13 @@ function EditUser() {
 
   function handleSubmit() {
     console.log(userList);
-    let tempPass = passwordInput
-    let tempDept = deptInput
+    let tempPass = passwordInput;
+    let tempDept = deptInput;
     if (tempPass.length <= 0) {
       tempPass = userList.password;
     }
     if (deptInput.length <= 0) {
-      tempDept = userList.department
+      tempDept = userList.department;
     }
     console.log("temp:" + tempPass + tempDept);
     let obj = {

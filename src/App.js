@@ -15,6 +15,9 @@ import ReportForm from "./components/Report/ReportForm";
 import User from "./components/User/User";
 import CreateUser from "./components/User/CreateUser";
 import EditUser from "./components/User/EditUser";
+import Die from "./components/Die/Die";
+import CreateDie from "./components/Die/CreateDie";
+import EditDie from "./components/Die/EditDie";
 
 function App() {
   const [isSignIn, setIsSignIn] = useState(true);
@@ -92,9 +95,13 @@ function App() {
                         <AiFillEdit /> จัดการผู้ใช้
                       </NavDropdown.Item>
                     ) : null}
+                    <NavDropdown.Item href="/die-mgnt">
+                      <AiFillEdit /> จัดการ Die
+                    </NavDropdown.Item>
                     <NavDropdown.Divider />
                     <NavDropdown.Item onClick={() => handleLogout()}>
-                      <BiLogOut /> ออกจากระบบ
+                      <BiLogOut color="#ff0000" />{" "}
+                      <label style={{ color: "red" }}>ออกจากระบบ</label>
                     </NavDropdown.Item>
                   </NavDropdown>
                 </Nav>
@@ -110,6 +117,9 @@ function App() {
                 <Route path="/user" component={User} />
                 <Route path="/user-create" component={CreateUser} />
                 <Route path="/user-edit/:id" component={EditUser} />
+                <Route path="/die-mgnt" component={Die} />
+                <Route path="/die-create" component={CreateDie} />
+                <Route path="/die-edit/:id" component={EditDie} />
               </Switch>
             </div>
           </div>

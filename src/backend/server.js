@@ -7,6 +7,7 @@ let bodyParser = require('body-parser');
 
 const zoneRoute = require('./route/zone.routes');
 const machineRoute = require('./route/machine.routes');
+const dieRoute = require('./route/die.routes');
 const dieUsageRoute = require('./route/dieUsage.routes');
 const locationRoute = require('./route/location.routes');
 const userRoute = require('./route/user.routes');
@@ -31,6 +32,7 @@ app.use(bodyParser.urlencoded({
 app.use(cors());
 app.use('/zone', zoneRoute);
 app.use('/machine', machineRoute);
+app.use('/die', dieRoute);
 app.use('/die-usage', dieUsageRoute);
 app.use('/location', locationRoute);
 app.use('/user', userRoute);

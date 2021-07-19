@@ -28,8 +28,10 @@ import { IoInformationCircle } from "react-icons/io5";
 import "../IssueDie/IssueDie.css";
 import { BsArrowDown, BsArrowUp } from "react-icons/bs";
 import ModalStatus from "./ModalStatus";
-import IssuedAudio from '../assets/sounds/IssuedDie.mp3'
-import ReceivedAudio from '../assets/sounds/ReceivedDie.mp3'
+import IssuedAudio from "../assets/sounds/IssuedDie.mp3";
+import ReceivedAudio from "../assets/sounds/ReceivedDie.mp3";
+
+import ItemNotMatchAudio from "../assets/sounds/ItemNotMatch.mp3";
 
 function IssueDie() {
   const userTokenData = JSON.parse(localStorage.getItem("userToken"));
@@ -55,6 +57,8 @@ function IssueDie() {
   const [isAlertModal, setisAlertModal] = useState(false);
   const [delProgress, setdelProgress] = useState(false);
   const [isLoading, setisLoading] = useState(true);
+  const [isBtnIssLoading, setisBtnIssLoading] = useState(false);
+  const [isBtnRecvLoading, setisBtnRecvLoading] = useState(false);
   const [typeModal, settypeModal] = useState(null);
 
   const [alertNotFoundRequestDie, setalertNotFoundRequestDie] = useState(false);
@@ -111,6 +115,7 @@ function IssueDie() {
   }, [dieList, istoastVisible, prevDieList.length, settoastTime]);
 
   function handleFilterDie(e) {
+    let ItemNotMatch = new Audio(ItemNotMatchAudio);
     // console.log(scanItem, scanLocDie);
     if (e.charCode === 13 || e.keyCode === 9) {
       e.preventDefault();
@@ -134,6 +139,9 @@ function IssueDie() {
           setissueBtn(true);
           setscanItem("");
           setscanLocDie("");
+          itemRef.current.focus();
+          itemRef.current.select();
+          ItemNotMatch.play();
         });
     }
   }
@@ -172,11 +180,7 @@ function IssueDie() {
 
   function handleIssueDie() {
     let dieId = getDieIdForIssue();
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    setisBtnIssLoading(false);
 
     console.log("dieId:" + dieId);
     if (dieId) {
@@ -188,15 +192,17 @@ function IssueDie() {
         })
         .then(() => {
           setItem("");
+          setscanItem("");
           setLocDie("");
+          setscanLocDie("");
           setjob("");
           setissueBtn(true);
+          setisBtnIssLoading(false);
           issuedDieAudio.play();
           setisAlertModal(true);
           settypeModal("issued");
           setTimeout(() => {
             setisAlertModal(false);
-            window.scrollTo(0, 0);
           }, 2000);
           itemRef.current.value = "";
           locdieRef.current.value = "";
@@ -207,11 +213,6 @@ function IssueDie() {
 
   function handleReceive() {
     let dieId = getDieId();
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
 
     console.log("recieving:" + dieId);
     if (dieId) {
@@ -532,7 +533,16 @@ function IssueDie() {
                 disabled={issueBtn}
                 variant={issueBtn ? "secondary" : "primary"}
               >
-                เบิกไปผลิต
+                {isBtnIssLoading ? (
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    role="status"
+                    size="sm"
+                  />
+                ) : (
+                  "เบิกไปผลิต"
+                )}
               </Button>
               {itemErr ? (
                 <Alert variant="danger">ข้อมูลไม่ตรงกับในระบบ</Alert>
@@ -595,7 +605,16 @@ function IssueDie() {
                 disabled={issueBtn}
                 onClick={handleReceive}
               >
-                เก็บเข้าช่อง
+                {isBtnRecvLoading ? (
+                  <Spinner
+                    as="span"
+                    animation="border"
+                    role="status"
+                    size="sm"
+                  />
+                ) : (
+                  "เก็บเข้าช่อง"
+                )}
               </Button>
             </Card.Body>
           </Card>
