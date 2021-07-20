@@ -47,7 +47,7 @@ function DieRequest() {
   useLayoutEffect(() => {
     if (userTokenData) {
       axios
-        .get("http://192.168.2.197:4002/die-usage/no-received")
+        .get("http://192.168.2.13:4002/die-usage/no-received")
         .then((res) => {
           setdieList(res.data);
           setisLoading(false);
@@ -140,7 +140,7 @@ function DieRequest() {
       }, 3000);
     } else {
       axios
-        .post("http://192.168.2.197:4002/die-usage/create", obj)
+        .post("http://192.168.2.13:4002/die-usage/create", obj)
         .then(() => {
           setalertSuccess(true);
           setTimeout(() => {
@@ -184,7 +184,7 @@ function DieRequest() {
     setdelProgress(true);
     // console.log(deleteList);
     axios
-      .delete("http://192.168.2.197:4002/die-usage/delete/" + delId)
+      .delete("http://192.168.2.13:4002/die-usage/delete/" + delId)
       .then(() => {
         setdelProgress(false);
         setdeleteList([]);
