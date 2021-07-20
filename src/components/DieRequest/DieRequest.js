@@ -46,10 +46,12 @@ function DieRequest() {
 
   useLayoutEffect(() => {
     if (userTokenData) {
-      axios.get("http://192.168.2.13:4002/die-usage/no-received").then((res) => {
-        setdieList(res.data);
-        setisLoading(false);
-      });
+      axios
+        .get("http://192.168.2.197:4002/die-usage/no-received")
+        .then((res) => {
+          setdieList(res.data);
+          setisLoading(false);
+        });
       //   .catch((err) => console.log(err));
     }
   }, [userTokenData]);
@@ -76,7 +78,13 @@ function DieRequest() {
           if (res.data.cust_item) {
             setitem(res.data.cust_item);
           } else {
-            setitem(res.data.item);
+            if (res.data.item.indexOf("-E") >= 1) {
+              setitem(res.data.item.substring(0, res.data.item.length - 2));
+            } else if (res.data.item.indexOf("-CARTON") >= 1) {
+              setitem(res.data.item.substring(0, res.data.item.length - 9));
+            } else {
+              setitem(res.data.item);
+            }
           }
 
           if (res.data.Uf_Loc_die) {
@@ -120,8 +128,11 @@ function DieRequest() {
     // console.log(obj);
 
     if (
-      dieList.filter((die) => die.item === item && (die.status === "กำลังรอ die" || die.status === "จ่ายแล้ว"))
-        .length > 0
+      dieList.filter(
+        (die) =>
+          die.item === item &&
+          (die.status === "กำลังรอ die" || die.status === "จ่ายแล้ว")
+      ).length > 0
     ) {
       setalertExistData(true);
       setTimeout(() => {
@@ -129,7 +140,7 @@ function DieRequest() {
       }, 3000);
     } else {
       axios
-        .post("http://192.168.2.13:4002/die-usage/create", obj)
+        .post("http://192.168.2.197:4002/die-usage/create", obj)
         .then(() => {
           setalertSuccess(true);
           setTimeout(() => {
@@ -173,7 +184,7 @@ function DieRequest() {
     setdelProgress(true);
     // console.log(deleteList);
     axios
-      .delete("http://192.168.2.13:4002/die-usage/delete/" + delId)
+      .delete("http://192.168.2.197:4002/die-usage/delete/" + delId)
       .then(() => {
         setdelProgress(false);
         setdeleteList([]);
