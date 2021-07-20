@@ -3,6 +3,7 @@ import React, { useLayoutEffect, useState } from "react";
 import { Button, Col, Container, Form, Row, Alert } from "react-bootstrap";
 import { FaPlusCircle } from "react-icons/fa";
 import { useHistory } from "react-router";
+import moment from "moment";
 
 function CreateDie() {
   const history = useHistory();
@@ -39,6 +40,15 @@ function CreateDie() {
         setitemInput("");
         setlocdieInput("");
       });
+
+      let dieTransObj = {
+        item: itemInput,
+        locdie: locdieInput,
+        trans_type: "In",
+        trans_date: moment().format(),
+      };
+
+      axios.post("http://192.168.2.13:4002/die-trans/create", dieTransObj);
     }
   }
 

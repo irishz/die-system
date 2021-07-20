@@ -91,13 +91,15 @@ function App() {
                     alignRight
                   >
                     {userToken[4] === 1 ? (
-                      <NavDropdown.Item href="/user">
-                        <AiFillEdit /> จัดการผู้ใช้
-                      </NavDropdown.Item>
+                      <>
+                        <NavDropdown.Item href="/user">
+                          <AiFillEdit /> จัดการผู้ใช้
+                        </NavDropdown.Item>
+                        <NavDropdown.Item href="/die-mgnt">
+                          <AiFillEdit /> จัดการ Die
+                        </NavDropdown.Item>
+                      </>
                     ) : null}
-                    <NavDropdown.Item href="/die-mgnt">
-                      <AiFillEdit /> จัดการ Die
-                    </NavDropdown.Item>
                     <NavDropdown.Divider />
                     <NavDropdown.Item onClick={() => handleLogout()}>
                       <BiLogOut color="#ff0000" />{" "}

@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Button, Col, Container, Form, Row, Alert } from "react-bootstrap";
 import { FaUserEdit } from "react-icons/fa";
+import { BiHistory } from "react-icons/bi";
 import { useHistory, useParams } from "react-router";
 import axios from "axios";
+import DieTrans from "./DieTrans";
+import moment from "moment";
 
 function EditDie(props) {
   let { id } = useParams();
@@ -16,24 +19,49 @@ function EditDie(props) {
     axios
       .get("http://192.168.2.13:4002/die/edit/" + id)
       .then((res) => {
-          console.log(res.data);
-        // setdieList(res.data);
-        // setitemInput(res.data[0].item);
-        // setlocdieInput(res.data[0].locdie);
+        console.log(res.data);
+        setdieList(res.data);
+        setitemInput(res.data.item);
+        setlocdieInput(res.data.locdie);
       })
       .catch((err) => console.log(err));
   }, [id]);
 
   function handleUpdate() {
-    console.log(dieList);
-    let obj = dieList;
-    obj.locdie = locdieInput;
+    let obj = {
+      item: dieList.item,
+      locdie: locdieInput,
+    };
+    console.log(obj);
+
+    updateDieTransTrigger(obj);
+  }
+
+  async function updateDieTransTrigger(dieObj) {
+    // When update die will create die transaction
+    await axios
+      .put("http://192.168.2.13:4002/die/update/" + id, dieObj)
+      .then(() => {
+        setalertUpdateSuccess(true);
+        setTimeout(() => {
+          setalertUpdateSuccess(false);
+        }, 3000);
+      })
+      .catch((err) => console.log(err));
+
+    let transObj = {
+      item: itemInput,
+      locdie: locdieInput,
+      trans_type: "Move",
+      trans_date: moment().format(),
+    };
+    await axios.post("http://192.168.2.13:4002/die-trans/create", transObj);
   }
 
   return (
     <Container>
       <Row style={styles.Header}>
-        <h1 style={{ color: "#505050" }}>
+        <h1 style={styles.textTitle}>
           <FaUserEdit /> แก้ไข Die
         </h1>
       </Row>
@@ -63,7 +91,7 @@ function EditDie(props) {
         </Form.Group>
       </Form>
 
-      <Row>
+      <Row style={styles.EndEditSection}>
         <Button variant="primary" onClick={() => handleUpdate()}>
           บันทึก
         </Button>
@@ -75,6 +103,13 @@ function EditDie(props) {
       <Alert show={alertUpdateSuccess} variant="success" style={styles.alert}>
         บันทึกข้อมูลสำเร็จ
       </Alert>
+
+      <Row style={styles.Header}>
+        <h4 style={{ color: "#505050" }}>
+          <BiHistory /> ประวัติการแก้ไข
+        </h4>
+      </Row>
+      <DieTrans item={itemInput} />
     </Container>
   );
 }
@@ -89,5 +124,11 @@ const styles = {
     justifyContent: "space-between",
     paddingLeft: 15,
     paddingRight: 15,
+  },
+  textTitle: {
+    color: "#505050",
+  },
+  EndEditSection: {
+    marginBottom: "20px",
   },
 };

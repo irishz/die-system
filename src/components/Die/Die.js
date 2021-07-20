@@ -12,12 +12,12 @@ import {
   Pagination,
 } from "react-bootstrap";
 import { FaEdit, FaPlusCircle } from "react-icons/fa";
-import { CgArrowsExchange } from "react-icons/cg";
 import { BeatLoader } from "halogenium";
 import moment from "moment";
 
 function Die() {
   const [dieList, setdieList] = useState([]);
+  const [delList, setdelList] = useState([]);
   const [isLoading, setisLoading] = useState(true);
   const [alertDeleteSuccess, setalertDeleteSuccess] = useState(false);
   const [alertDeleteErr, setalertDeleteErr] = useState(false);
@@ -32,14 +32,14 @@ function Die() {
 
   useLayoutEffect(() => {
     axios
-      .get("http://192.168.2.13:4002/die/")
+      .get("http://192.168.2.13:4002/die/die-page/" + skip + "/" + rowPerPage)
       .then((res) => {
         setisLoading(false);
         setdieList(res.data);
         settotalPage(Math.floor(res.data.length / rowPerPage));
       })
       .catch((err) => console.log(err));
-  }, [rowPerPage]);
+  }, [rowPerPage, skip, dieList]);
 
   function handleDeleteClick(id) {
     // console.log("delete id:" + id);
@@ -55,8 +55,8 @@ function Die() {
     );
   }
 
-  function deleteDie() {
-    axios
+  async function deleteDie() {
+    await axios
       .delete("http://192.168.2.13:4002/die/delete/" + delId)
       .then(() => {
         setalertDeleteSuccess(true);
@@ -72,6 +72,19 @@ function Die() {
           setalertDeleteErr(false);
         }, 3000);
       });
+
+    await axios
+      .get("http://192.168.2.13:4002/die/edit/" + delId)
+      .then((res) => setdelList(res.data))
+      .catch((err) => console.log(err));
+
+    let transObj = {
+      item: delList.item,
+      locdie: delList.locdie,
+      trans_type: "Out",
+      trans_date: moment().format(),
+    };
+    await axios.post("http://192.168.2.13:4002/die-trans/create", transObj);
   }
 
   function handlePageFirstClick() {

@@ -180,7 +180,7 @@ function IssueDie() {
 
   function handleIssueDie() {
     let dieId = getDieIdForIssue();
-    setisBtnIssLoading(false);
+    setisBtnIssLoading(true);
 
     console.log("dieId:" + dieId);
     if (dieId) {
@@ -213,6 +213,7 @@ function IssueDie() {
 
   function handleReceive() {
     let dieId = getDieId();
+    setisBtnRecvLoading(true);
 
     console.log("recieving:" + dieId);
     if (dieId) {
@@ -227,6 +228,7 @@ function IssueDie() {
           setItem("");
           setLocDie("");
           setissueBtn(true);
+          setisBtnRecvLoading(false);
           setisAlertModal(true);
           ReceivedDieAudio.play();
           settypeModal("received");
