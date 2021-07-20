@@ -32,7 +32,7 @@ function Die() {
 
   useLayoutEffect(() => {
     axios
-      .get("http://192.168.2.13:4002/die/die-page/" + skip + "/" + rowPerPage)
+      .get("http://192.168.2.13:4002/die/")
       .then((res) => {
         setisLoading(false);
         setdieList(res.data);
