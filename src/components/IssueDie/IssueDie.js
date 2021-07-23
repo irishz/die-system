@@ -89,7 +89,7 @@ function IssueDie() {
 
   useLayoutEffect(() => {
     axios
-      .get("http://192.168.2.197:4002/die-usage/no-received")
+      .get("http://192.168.2.13:4002/die-usage/no-received")
       .then((res) => {
         setinitDieList(res.data);
         setisLoading(false);
@@ -99,7 +99,7 @@ function IssueDie() {
 
   useEffect(() => {
     axios
-      .get("http://192.168.2.197:4002/die-usage/no-received")
+      .get("http://192.168.2.13:4002/die-usage/no-received")
       .then((res) => setdieList(res.data))
       .catch((err) => console.log(err));
 
@@ -194,7 +194,7 @@ function IssueDie() {
     console.log("dieId:" + dieId);
     if (dieId) {
       axios
-        .put("http://192.168.2.197:4002/die-usage/update/" + dieId, {
+        .put("http://192.168.2.13:4002/die-usage/update/" + dieId, {
           status: "จ่ายแล้ว",
           issuedBy: userTokenData[0],
           issuedAt: moment(),
@@ -227,7 +227,7 @@ function IssueDie() {
     console.log("recieving:" + dieId);
     if (dieId) {
       axios
-        .put("http://192.168.2.197:4002/die-usage/update/" + dieId, {
+        .put("http://192.168.2.13:4002/die-usage/update/" + dieId, {
           status: "รับคืนแล้ว",
           receivedBy: userTokenData[0],
           receivedAt: moment(),
@@ -294,7 +294,7 @@ function IssueDie() {
     setdelProgress(true);
 
     axios
-      .delete("http://192.168.2.197:4002/die-usage/delete/" + delId)
+      .delete("http://192.168.2.13:4002/die-usage/delete/" + delId)
       .then(() => {
         setdelId("");
         setisModalVisible(false);
