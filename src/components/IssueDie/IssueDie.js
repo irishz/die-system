@@ -32,11 +32,12 @@ import IssuedAudio from "../assets/sounds/IssuedDie.mp3";
 import ReceivedAudio from "../assets/sounds/ReceivedDie.mp3";
 
 import ItemNotMatchAudio from "../assets/sounds/ItemNotMatch.mp3";
+import NewRequestAudio from "../assets/sounds/NewRequest.mp3";
 
 function IssueDie() {
   const userTokenData = JSON.parse(localStorage.getItem("userToken"));
   const [dieList, setdieList] = useState([]);
-  const [prevDieList, setprevDieList] = useState([]);
+  const [initDieList, setinitDieList] = useState([]);
   const [activeDieStatus, setactiveDieStatus] = useState("กำลังรอ die");
   const itemRef = useRef(null);
   const locdieRef = useRef(null);
@@ -88,9 +89,9 @@ function IssueDie() {
 
   useLayoutEffect(() => {
     axios
-      .get("http://192.168.2.13:4002/die-usage/no-received")
+      .get("http://192.168.2.197:4002/die-usage/no-received")
       .then((res) => {
-        setprevDieList(res.data);
+        setinitDieList(res.data);
         setisLoading(false);
       })
       .catch((err) => console.log(err));
@@ -98,21 +99,29 @@ function IssueDie() {
 
   useEffect(() => {
     axios
-      .get("http://192.168.2.13:4002/die-usage/no-received")
+      .get("http://192.168.2.197:4002/die-usage/no-received")
       .then((res) => setdieList(res.data))
       .catch((err) => console.log(err));
 
-    if (dieList.length > prevDieList.length) {
-      settoastNewItem(dieList.length - prevDieList.length);
+    // console.log(moment("2021-04-28T01:36:44.000Z").diff(moment()));
+  }, [dieList]);
+
+  useEffect(() => {
+    // console.log(dieList.length, initDieList.length, toastNewItem);
+    if (dieList.length > initDieList.length) {
+      settoastNewItem(dieList.length - initDieList.length);
       setistoastVisible(true);
       settoastTime(moment().fromNow());
     }
+  }, [dieList.length, istoastVisible, initDieList.length, toastNewItem]);
 
-    if (istoastVisible) {
-      settoastTime(moment().fromNow());
+  useEffect(() => {
+    // console.log("play sound");
+    let NewRequest = new Audio(NewRequestAudio);
+    if (istoastVisible === true) {
+      NewRequest.play();
     }
-    // console.log(moment("2021-04-28T01:36:44.000Z").diff(moment()));
-  }, [dieList, istoastVisible, prevDieList.length, settoastTime]);
+  }, [istoastVisible, toastNewItem]);
 
   function handleFilterDie(e) {
     let ItemNotMatch = new Audio(ItemNotMatchAudio);
@@ -185,7 +194,7 @@ function IssueDie() {
     console.log("dieId:" + dieId);
     if (dieId) {
       axios
-        .put("http://192.168.2.13:4002/die-usage/update/" + dieId, {
+        .put("http://192.168.2.197:4002/die-usage/update/" + dieId, {
           status: "จ่ายแล้ว",
           issuedBy: userTokenData[0],
           issuedAt: moment(),
@@ -218,7 +227,7 @@ function IssueDie() {
     console.log("recieving:" + dieId);
     if (dieId) {
       axios
-        .put("http://192.168.2.13:4002/die-usage/update/" + dieId, {
+        .put("http://192.168.2.197:4002/die-usage/update/" + dieId, {
           status: "รับคืนแล้ว",
           receivedBy: userTokenData[0],
           receivedAt: moment(),
@@ -269,9 +278,11 @@ function IssueDie() {
   }
 
   function handleToastClose() {
-    setprevDieList(dieList);
+    setdieList(dieList);
     setistoastVisible(false);
     settoastTime(null);
+    settoastNewItem(null);
+    setinitDieList(dieList);
   }
 
   function handleDeleteClick(id) {
@@ -283,17 +294,24 @@ function IssueDie() {
     setdelProgress(true);
 
     axios
-      .delete("http://192.168.2.13:4002/die-usage/delete/" + delId)
+      .delete("http://192.168.2.197:4002/die-usage/delete/" + delId)
       .then(() => {
         setdelId("");
         setisModalVisible(false);
         setdelProgress(false);
+        initDieList.pop();
       })
       .catch((err) => console.log(err));
   }
 
+  function handleMouseMove() {
+    if (istoastVisible === true) {
+      handleToastClose();
+    }
+  }
+
   return (
-    <Container>
+    <Container onMouseMove={() => handleMouseMove()}>
       <Row
         style={{
           display: "flex",
@@ -626,7 +644,6 @@ function IssueDie() {
       <Toast
         style={styles.notiToast}
         show={istoastVisible}
-        delay={3000}
         onClose={() => handleToastClose()}
         animation={true}
       >
