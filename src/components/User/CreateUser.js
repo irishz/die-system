@@ -1,11 +1,12 @@
 import axios from "axios";
-import React, { useLayoutEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import { Alert, Button, Col, Container, Form, Row } from "react-bootstrap";
 import { FaUserPlus } from "react-icons/fa";
 import { useHistory } from "react-router";
 
 function CreateUser() {
   let history = useHistory();
+  const [userList, setuserList] = useState([]);
   const [employeeInput, setemployeeInput] = useState("");
   const [firstnameInput, setfirstnameInput] = useState("");
   const [lastnameInput, setlastnameInput] = useState("");
@@ -13,15 +14,30 @@ function CreateUser() {
   const [passwordInput, setpasswordInput] = useState("");
   const [confirmpswdInput, setconfirmpswdInput] = useState("");
   const [alertPswdNotMatch, setalertPswdNotMatch] = useState(false);
-  const [userCount, setuserCount] = useState(0);
+  const [lastUserID, setlastUserID] = useState(0);
   const [alertCreateSuccess, setalertCreateSuccess] = useState(false);
 
   useLayoutEffect(() => {
     axios
       .get("http://192.168.2.13:4002/user")
-      .then((res) => setuserCount(res.data.length))
+      .then((res) => {
+        setuserList(res.data);
+      })
       .catch((err) => console.log(err));
   }, []);
+
+  useEffect(() => {
+    axios
+      .get("http://192.168.2.13:4002/user")
+      .then((res) => {
+        let list = res.data
+        let last_id = list.sort((a,b) => a.id < b.id ? 1 : -1)
+          last_id = list[0].id
+        setlastUserID(last_id)
+      })
+      .catch((err) => console.log(err));
+  }, [userList])
+
 
   function handleSubmit() {
     if (passwordInput !== confirmpswdInput) {
@@ -33,11 +49,11 @@ function CreateUser() {
 
   function userCreate(match) {
     let obj = {
-      id: userCount + 1,
+      id: lastUserID + 1,
       name: firstnameInput + " " + lastnameInput,
       dept: deptInput,
       username: firstnameInput + " " + lastnameInput,
-      password: employeeInput,
+      password: passwordInput,
       accesslevel: 0,
     };
 
@@ -50,7 +66,7 @@ function CreateUser() {
           setTimeout(() => {
             setalertCreateSuccess(false);
           }, 3000);
-          setuserCount(0);
+          setuserList([])
           setemployeeInput("");
           setfirstnameInput("");
           setlastnameInput("");
@@ -78,7 +94,7 @@ function CreateUser() {
             id
           </Form.Label>
           <Col sm="3">
-            <Form.Control type="text" readOnly value={userCount + 1} />
+            <Form.Control type="text" readOnly value={lastUserID} />
           </Col>
         </Form.Group>
 
