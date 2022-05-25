@@ -94,7 +94,7 @@ function CreateUser() {
             id
           </Form.Label>
           <Col sm="3">
-            <Form.Control type="text" readOnly value={lastUserID} />
+            <Form.Control type="text" readOnly value={lastUserID + 1} />
           </Col>
         </Form.Group>
 
